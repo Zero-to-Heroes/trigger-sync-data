@@ -1,0 +1,26 @@
+# https://github.com/awslabs/serverless-application-model/blob/develop/versions/2016-10-31.md
+# Indentation needs to be set with spaces, because YAML...
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sync some data with third parties
+
+Resources:
+    SyncStatsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: sync-data.default
+            # Runtime: nodejs10.x
+            Runtime: nodejs8.10 # Used for dev
+            Timeout: 120
+            CodeUri: ./dist/sync-data
+            MemorySize: 256
+            Policies:
+                - AWSLambdaVPCAccessExecutionRole
+                - AmazonSESFullAccess
+                - SecretsManagerReadWrite
+                - AmazonSNSReadOnlyAccess
+            Events:
+                ReviewPublishedSnsTopic:
+                    Type: SNS
+                    Properties:
+                        Topic: arn:aws:sns:us-west-2:478062583808:review-published-firestone
