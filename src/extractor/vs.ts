@@ -7,6 +7,8 @@ import { extractPlayedCards } from './played-card-extractor';
 
 export const extractViciousSyndicateStats = (message: ReviewMessage, replay: Replay, replayString: string): VSStat => {
 	return {
+		game_id: message.reviewId,
+		timestamp: Date.now(),
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
 			FormatType: getFormatType(message.gameFormat),
@@ -76,6 +78,8 @@ const getFormatType = (gameFormat: string): string => {
 };
 
 export interface VSStat {
+	game_id: string;
+	timestamp: number;
 	game_meta: {
 		BuildNumber: number;
 		GameType: string;
