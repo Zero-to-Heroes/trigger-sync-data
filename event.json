@@ -9,7 +9,7 @@
 				"MessageId": "73b7584b-94d4-5160-9e33-0e53d521470d",
 				"TopicArn": "arn:aws:sns:us-west-2:478062583808:review-published",
 				"Subject": "New published review",
-				"Message": "{\"result\":\"won\",\"playerClass\":\"demonhunter\",\"opponentClass\":\"demonhunter\",\"gameMode\":\"ranked\",\"replayKey\":\"hearthstone/replay/2020/4/3/6ddcec9d-b027-4096-bc6a-6d4267d95dde\",\"reviewId\":\"b1325179-4b37-4e90-9be4-8e86c38cba70\",\"gameFormat\":\"standard\",\"playerDecklist\":\"AAECAea5AwT8owOuugPaxgOcyQMNh7oDi7oD17sD4LwDjb0DusYDx8YD2cYD1MgD1cgD/MgD8skD29MDAA==\",\"application\":\"firestone\", \"buildNumber\":44582, \"scenarioId\":\"2\", \"creationDate\":\"2020-04-08 09:05:00.146000\"}",
+				"Message": "{\"result\":\"won\",\"playerClass\":\"demonhunter\",\"opponentClass\":\"demonhunter\",\"gameMode\":\"ranked\",\"replayKey\":\"hearthstone/replay/2020/4/3/6ddcec9d-b027-4096-bc6a-6d4267d95dde\",\"reviewId\":\"b1325179-4b37-4e90-9be4-8e86c38cba70\",\"gameFormat\":\"standard\",\"playerDecklist\":\"AAECAea5AwT8owOuugPaxgOcyQMNh7oDi7oD17sD4LwDjb0DusYDx8YD2cYD1MgD1cgD/MgD8skD29MDAA==\",\"application\":\"firestone\", \"buildNumber\":44582, \"scenarioId\":\"2\", \"playerRank\":\"5-3\", \"opponentRank\":\"legend-1523\"}",
 				"Timestamp": "2019-10-09T20:14:45.340Z",
 				"SignatureVersion": "1",
 				"Signature": "JXhaXcEXwtXCfUWUHvJNaG9CKGGuYQn9b/Bfpjg3YGrx2iaoG+LVTk2evxtD6Y0KplWnnqQYaenfXM2FnCwhddwPpPJKZeb5JDQuM52a2+JHfBoqBLTNEKrUTb/mMzZtjzgeUyust9WO12ihy89AHNXwGTzFD/jR5W94UJ/RIJEQ5jCGNNEA+/v3FA+BCDTmGcIhAAcHzL6lPGIyo6MjMUtmgvhjLlUqIvkzmr7oTxyIk5Cl6LwI3OY3NorcloYMU7ODCA7sZTLjk+N1T89LnZpJ6jEkYc0duKQXyoFq3xa91HVQrLbp+AcskIRlbnGUoOxAjNr+tquYu5f2T/UkRw==",

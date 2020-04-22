@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Replay } from '@firestone-hs/hs-replay-xml-parser';
+import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser';
 import { BnetRegion, GameFormat, GameType } from '@firestone-hs/reference-data';
 import { ReviewMessage } from '../review-message';
 import { extractPlayedCards } from './played-card-extractor';
 
 export const extractViciousSyndicateStats = (message: ReviewMessage, replay: Replay, replayString: string): VSStat => {
+	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
+	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 	return {
 		game_id: message.reviewId,
 		timestamp: Date.now(),
+		game_duration_in_seconds: extractTotalDuration(replay),
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
 			FormatType: getFormatType(message.gameFormat),
@@ -22,14 +25,36 @@ export const extractViciousSyndicateStats = (message: ReviewMessage, replay: Rep
 			PLAYSTATE: message.result.toUpperCase(),
 			cards: extractPlayedCards(replay, message, replay.mainPlayerId),
 			deckstring: message.playerDecklist,
+			rank: playerRank,
+			legendRank: playerLegendRank,
+			going_first: replay.playCoin === 'play',
 		},
 		opposing_player: {
 			player_id: replay.opponentPlayerId,
 			class: message.opponentClass.toUpperCase(),
 			PLAYSTATE: getOpponentPlaystate(message.result),
 			cards: extractPlayedCards(replay, message, replay.opponentPlayerId),
+			rank: opponentRank,
+			legendRank: opponentLegendRank,
+			going_first: replay.playCoin === 'coin',
 		},
 	};
+};
+
+const convertLeagueToRank = (playerRank: string): [number, number] => {
+	if (!playerRank || playerRank === '-1--1') {
+		return [null, 0];
+	}
+	if (playerRank.indexOf('legend-') !== -1) {
+		return [51, parseInt(playerRank.split('legend-')[1])];
+	}
+	if (playerRank.indexOf('-') === -1) {
+		console.log('cant parse rank', playerRank);
+		return [null, 0];
+	}
+	const league = (5 - parseInt(playerRank.split('-')[0])) * 10;
+	const rank = 10 - parseInt(playerRank.split('-')[1]) + 1;
+	return [league + rank, 0];
 };
 
 const getOpponentPlaystate = (playerPlayState: 'lost' | 'won' | 'tied'): string => {
@@ -80,6 +105,7 @@ const getFormatType = (gameFormat: string): string => {
 export interface VSStat {
 	game_id: string;
 	timestamp: number;
+	game_duration_in_seconds: number;
 	game_meta: {
 		BuildNumber: number;
 		GameType: string;
@@ -93,11 +119,17 @@ export interface VSStat {
 		PLAYSTATE: string;
 		cards: string[];
 		deckstring: string;
+		rank: number;
+		legendRank: number;
+		going_first: boolean;
 	};
 	opposing_player: {
 		player_id: number;
 		class: string;
 		PLAYSTATE: string;
 		cards: string[];
+		rank: number;
+		legendRank: number;
+		going_first: boolean;
 	};
 }

@@ -38,7 +38,7 @@ export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playe
 		entity => idControllerMapping[getId(entity)] && idControllerMapping[getId(entity)] === playerId,
 	);
 	const playedCards = playerEntities.map(entity => getCardId(entity));
-	console.log('playedCards', playedCards);
+	// console.log('playedCards', playedCards);
 	return playedCards;
 };
 
