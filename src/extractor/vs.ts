@@ -2,13 +2,18 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser';
 import { BnetRegion, GameFormat, GameType } from '@firestone-hs/reference-data';
+import axios from 'axios';
 import { ReviewMessage } from '../review-message';
 import { extractPlayedCards } from './played-card-extractor';
 
-export const extractViciousSyndicateStats = (message: ReviewMessage, replay: Replay, replayString: string): VSStat => {
+export const extractViciousSyndicateStats = async (
+	message: ReviewMessage,
+	replay: Replay,
+	replayString: string,
+): Promise<void> => {
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
-	return {
+	const vsStats = {
 		game_id: message.reviewId,
 		timestamp: Date.now(),
 		game_duration_in_seconds: extractTotalDuration(replay),
@@ -39,6 +44,13 @@ export const extractViciousSyndicateStats = (message: ReviewMessage, replay: Rep
 			going_first: replay.playCoin === 'coin',
 		},
 	};
+	console.log('extracted vs stats', JSON.stringify(vsStats));
+	try {
+		const result = await axios.post('http://datareaper.vicioussyndicate.com/fs', vsStats);
+		console.log('sent stats', result.status, result.statusText);
+	} catch (e) {
+		console.error('Could not send request to VS', JSON.stringify(vsStats, null, 4), e);
+	}
 };
 
 const convertLeagueToRank = (playerRank: string): [number, number] => {
