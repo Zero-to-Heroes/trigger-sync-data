@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser';
 import fetch from 'cross-fetch';
+import { buildJsonEvents } from './extractor/json-events/kda';
 import { extractViciousSyndicateStats } from './extractor/vs';
 import { ReviewMessage } from './review-message';
 
@@ -23,7 +24,7 @@ export class StatsBuilder {
 		// console.log('parsed replay', JSON.stringify(replay, null, 4));
 		await Promise.all([
 			extractViciousSyndicateStats(message, replay, replayString),
-			// buildJsonEvents(message, replay, replayString),
+			buildJsonEvents(message, replay, replayString),
 		]);
 	}
 

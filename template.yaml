@@ -9,8 +9,8 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: sync-data.default
-            Runtime: nodejs10.x
             # Runtime: nodejs8.10 # Used for dev
+            Runtime: nodejs10.x
             Timeout: 120
             CodeUri: ./dist/sync-data
             MemorySize: 256

@@ -11,6 +11,10 @@ export const extractViciousSyndicateStats = async (
 	replay: Replay,
 	replayString: string,
 ): Promise<void> => {
+	if ([GameType.GT_VS_AI].indexOf(replay.gameType) !== -1) {
+		console.log('ai game, returning', message, replay.gameType);
+		return;
+	}
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 	const vsStats = {
