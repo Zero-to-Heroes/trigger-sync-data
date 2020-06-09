@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Replay } from '@firestone-hs/hs-replay-xml-parser';
+import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { GameTag, Zone } from '@firestone-hs/reference-data';
 import { Element } from 'elementtree';
 import { ReviewMessage } from '../review-message';

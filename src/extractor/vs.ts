@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser';
+import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameType } from '@firestone-hs/reference-data';
 import axios from 'axios';
 import { ReviewMessage } from '../review-message';

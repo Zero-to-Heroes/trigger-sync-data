@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Replay } from '@firestone-hs/hs-replay-xml-parser';
+import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { GameType } from '@firestone-hs/reference-data';
 import axios from 'axios';
 import { ReviewMessage } from '../../review-message';
@@ -9,7 +9,7 @@ import { JsonEventsResult } from './json-events-result';
 import { ReplayParser } from './replay-parser';
 
 export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, replayString: string): Promise<void> => {
-	if (replay.gameType !== GameType.GT_BATTLEGROUNDS) {
+	if (replay.gameType !== GameType.GT_BATTLEGROUNDS && replay.gameType !== GameType.GT_BATTLEGROUNDS_FRIENDLY) {
 		return;
 	}
 	try {

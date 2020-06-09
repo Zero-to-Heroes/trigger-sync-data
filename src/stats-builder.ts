@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser';
+import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import fetch from 'cross-fetch';
 import { buildJsonEvents } from './extractor/json-events/kda';
 import { extractViciousSyndicateStats } from './extractor/vs';
