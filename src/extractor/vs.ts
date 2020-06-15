@@ -21,6 +21,7 @@ export const extractViciousSyndicateStats = async (
 		game_id: message.reviewId,
 		timestamp: Date.now(),
 		game_duration_in_seconds: extractTotalDuration(replay),
+		patchNumber: parseInt(message.buildNumber),
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
 			FormatType: getFormatType(message.gameFormat),

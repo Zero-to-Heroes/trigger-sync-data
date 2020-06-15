@@ -49,6 +49,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 				metadata: {
 					playerFinishPosition: parseInt(message.additionalResult),
 					playerMmr: parseInt(message.playerRank),
+					patchNumber: parseInt(message.buildNumber),
 				},
 			},
 		};
