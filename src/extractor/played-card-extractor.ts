@@ -10,7 +10,14 @@ export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playe
 	// const playerCardId: string = extractPlayerCardId(replay, playerId);
 	const idControllerMapping = buildIdToControllerMapping(replay);
 	// console.log('idControllerMapping', idControllerMapping);
-	const entitiesWithCards = replay.replay.findall(`.//*[@cardID]`).filter(entity => isEntityValid(entity));
+	const entitiesWithCards = replay.replay
+		.findall(`.//*[@cardID]`)
+		.filter(element => element.tag !== 'ChangeEntity')
+		.filter(entity => isEntityValid(entity));
+	// console.log(
+	// 	'entityWithCards',
+	// 	entitiesWithCards.map(entity => getId(entity)),
+	// );
 
 	// Because cards can change controllers during the game, we need to only consider the
 	// first time we see them
@@ -23,6 +30,10 @@ export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playe
 		// Only add cards
 		uniqueEntities.push(entity);
 	}
+	// console.log(
+	// 	'uniqueEntities',
+	// 	uniqueEntities.map(entity => getId(entity)),
+	// );
 
 	const validZoneChangeTags = replay.replay
 		.findall(`.//TagChange[@tag='${GameTag.ZONE}']`)
@@ -38,6 +49,18 @@ export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playe
 		entity => idControllerMapping[getId(entity)] && idControllerMapping[getId(entity)] === playerId,
 	);
 	const playedCards = playerEntities.map(entity => getCardId(entity));
+	// console.log(
+	// 	'entity ids',
+	// 	playerEntities.map(entity => getId(entity)),
+	// );
+	// console.log(
+	// 	'entity tags',
+	// 	playerEntities.map(entity => entity.tag),
+	// );
+	// console.log(
+	// 	'entityCardIds',
+	// 	playerEntities.map(entity => getCardId(entity)),
+	// );
 	// console.log('playedCards', playedCards);
 	return playedCards;
 };
