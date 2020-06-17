@@ -50,6 +50,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 					playerFinishPosition: parseInt(message.additionalResult),
 					playerMmr: parseInt(message.playerRank),
 					patchNumber: parseInt(message.buildNumber),
+					internalGameId: message.reviewId,
 				},
 			},
 		};
