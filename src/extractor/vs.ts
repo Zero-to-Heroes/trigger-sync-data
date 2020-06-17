@@ -11,7 +11,11 @@ export const extractViciousSyndicateStats = async (
 	replay: Replay,
 	replayString: string,
 ): Promise<void> => {
-	if ([GameType.GT_VS_AI].indexOf(replay.gameType) !== -1) {
+	if (
+		[GameType.GT_VS_AI, GameType.GT_TAVERNBRAWL, GameType.GT_TB_1P_VS_AI, GameType.GT_TB_2P_COOP].includes(
+			replay.gameType,
+		)
+	) {
 		console.log('ai game, returning', message, replay.gameType);
 		return;
 	}
@@ -101,7 +105,7 @@ const getGameType = (gameMode: string): string => {
 			return GameType.GT_RANKED.toString();
 		case 'tavern-brawl':
 		case 'tavernbrawl':
-			return GameType.GT_RANKED.toString();
+			return GameType.GT_TAVERNBRAWL.toString();
 		case 'ranked':
 			return GameType.GT_RANKED.toString();
 		default:
