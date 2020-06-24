@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import fetch from 'cross-fetch';
+import { S3 } from './db/s3';
 import { buildJsonEvents } from './extractor/json-events/kda';
 import { extractViciousSyndicateStats } from './extractor/vs';
 import { ReviewMessage } from './review-message';
+
+const s3 = new S3();
 
 export class StatsBuilder {
 	public async buildStats(messages: readonly ReviewMessage[]): Promise<void> {
@@ -29,7 +32,8 @@ export class StatsBuilder {
 	}
 
 	private async loadReplayString(replayKey: string): Promise<string> {
-		const data = await http(`http://xml.firestoneapp.com/${replayKey}`);
+		const data = await s3.readContentAsString('xml.firestoneapp.com', replayKey);
+		// const data = await http(`http://xml.firestoneapp.com/${replayKey}`);
 		return data;
 	}
 }
