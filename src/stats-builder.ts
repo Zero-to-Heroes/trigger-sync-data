@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
-import fetch from 'cross-fetch';
 import { S3 } from './db/s3';
 import { buildJsonEvents } from './extractor/json-events/kda';
 import { extractViciousSyndicateStats } from './extractor/vs';
@@ -32,32 +31,10 @@ export class StatsBuilder {
 	}
 
 	private async loadReplayString(replayKey: string): Promise<string> {
-		const data = await s3.readContentAsString('xml.firestoneapp.com', replayKey);
+		const data = replayKey.endsWith('.zip')
+			? await s3.readZippedContent('xml.firestoneapp.com', replayKey)
+			: await s3.readContentAsString('xml.firestoneapp.com', replayKey);
 		// const data = await http(`http://xml.firestoneapp.com/${replayKey}`);
 		return data;
 	}
-}
-
-async function http(request: string): Promise<any> {
-	return new Promise(resolve => {
-		fetch(request)
-			.then(
-				response => {
-					// console.log('received response, reading text body');
-					return response.text();
-				},
-				error => {
-					console.warn('could not retrieve review', error);
-				},
-			)
-			.then(
-				body => {
-					// console.log('sending back body', body && body.length);
-					resolve(body);
-				},
-				error => {
-					console.warn('extract body', error);
-				},
-			);
-	});
 }
