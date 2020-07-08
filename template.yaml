@@ -13,12 +13,14 @@ Resources:
             Runtime: nodejs10.x
             Timeout: 120
             CodeUri: ./dist/sync-data
-            MemorySize: 256
+            MemorySize: 192
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - AmazonSESFullAccess
                 - SecretsManagerReadWrite
                 - AmazonSNSReadOnlyAccess
+            Tags:
+                LambdaName: trigger-sync-data
             Events:
                 ReviewPublishedSnsTopic:
                     Type: SNS
