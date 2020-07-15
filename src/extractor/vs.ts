@@ -54,6 +54,10 @@ export const extractViciousSyndicateStats = async (
 		},
 	};
 	console.log('extracted vs stats', JSON.stringify(vsStats));
+	if (vsStats.friendly_player.cards.length === 0) {
+		console.log('no cards');
+		return;
+	}
 	try {
 		const result = await axios.post('http://datareaper.vicioussyndicate.com/fs', vsStats);
 		console.log('sent stats', result.status, result.statusText);

@@ -13,7 +13,7 @@ Resources:
             Runtime: nodejs10.x
             Timeout: 120
             CodeUri: ./dist/sync-data
-            MemorySize: 192
+            MemorySize: 384 # Increase memory to be able to handle big games like BGS
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - AmazonSESFullAccess
