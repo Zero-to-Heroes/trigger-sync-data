@@ -11,15 +11,21 @@ Resources:
             Handler: sync-data.default
             # Runtime: nodejs8.10 # Used for dev
             Runtime: nodejs10.x
-            Timeout: 120
+            Timeout: 20
             CodeUri: ./dist/sync-data
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
+            # https://stackoverflow.com/questions/39144688/aws-lambda-invoke-not-calling-another-lambda-function-node-js
+            VpcConfig:
+                SecurityGroupIds:
+                    - sg-0ed63616362bf1a30
+                SubnetIds:
+                    - subnet-0b730ca9af74a95dd
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - AmazonSESFullAccess
                 - SecretsManagerReadWrite
                 - AmazonSNSReadOnlyAccess
-                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: trigger-sync-data
             Events:
