@@ -42,7 +42,9 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 				},
 			} as JsonEvent);
 		});
+
 		parser.parse();
+
 		const result: JsonEventsResult = {
 			events: {
 				events: events,
@@ -55,7 +57,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 			},
 		};
 		try {
-			console.log('parsing over');
+			console.log('parsing over', result);
 			const postResult = await axios.post('https://firestone-ow.kda.gg/ingest/events', result);
 			console.log('sent stats to KDA', postResult.status, postResult.statusText);
 		} catch (e) {

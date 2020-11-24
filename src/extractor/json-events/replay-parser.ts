@@ -86,7 +86,7 @@ export class ReplayParser extends EventEmitter {
 				// 	playerEntities.map(entity => entity.get('id')),
 				// 	element.get('entity'),
 				// );
-				const entityCardId = structure.entities[element.get('entity')].cardId;
+				const entityCardId = structure.entities[element.get('entity')]?.cardId;
 				if (entityCardId !== 'TB_BaconShop_8P_PlayerE') {
 					return;
 				}
