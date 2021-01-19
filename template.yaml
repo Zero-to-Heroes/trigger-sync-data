@@ -33,4 +33,4 @@ Resources:
                 ReviewPublishedSnsTopic:
                     Type: SNS
                     Properties:
-                        Topic: arn:aws:sns:us-west-2:478062583808:review-published-firestone
+                        Topic: arn:aws:sns:us-west-2:478062583808:review-published
