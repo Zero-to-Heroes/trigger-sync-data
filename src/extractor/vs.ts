@@ -19,6 +19,12 @@ export const extractViciousSyndicateStats = async (
 		console.log('ai game, returning', message, replay.gameType);
 		return;
 	}
+
+	if ([GameType.GT_BATTLEGROUNDS, GameType.GT_BATTLEGROUNDS_FRIENDLY].includes(replay.gameType)) {
+		console.log('bg, returning', message, replay.gameType);
+		return;
+	}
+
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 	const vsStats = {
