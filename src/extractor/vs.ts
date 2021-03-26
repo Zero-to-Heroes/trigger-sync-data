@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
-import { BnetRegion, GameFormat, GameType } from '@firestone-hs/reference-data';
+import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import axios from 'axios';
 import { ReviewMessage } from '../review-message';
 import { extractPlayedCards } from './played-card-extractor';
@@ -122,12 +122,15 @@ const getGameType = (gameMode: string): string => {
 			return GameType.GT_UNKNOWN.toString();
 	}
 };
-const getFormatType = (gameFormat: string): string => {
+
+const getFormatType = (gameFormat: GameFormatString): string => {
 	switch (gameFormat) {
 		case 'standard':
 			return GameFormat.FT_STANDARD.toString();
 		case 'wild':
 			return GameFormat.FT_WILD.toString();
+		case 'classic':
+			return GameFormat.FT_CLASSIC.toString();
 		default:
 			return GameFormat.FT_UNKNOWN.toString();
 	}
