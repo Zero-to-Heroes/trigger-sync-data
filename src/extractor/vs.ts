@@ -25,6 +25,12 @@ export const extractViciousSyndicateStats = async (
 		return;
 	}
 
+	const formatType = getFormatType(message.gameFormat);
+	const gameType = getGameType(message.gameMode);
+	if (formatType === GameFormat.FT_UNKNOWN.toString() || gameType === GameType.GT_UNKNOWN.toString()) {
+		return;
+	}
+
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 	const vsStats = {
@@ -34,8 +40,8 @@ export const extractViciousSyndicateStats = async (
 		patchNumber: parseInt(message.buildNumber),
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
-			FormatType: getFormatType(message.gameFormat),
-			GameType: getGameType(message.gameMode),
+			FormatType: formatType,
+			GameType: gameType,
 			ScenarioID: parseInt(message.scenarioId),
 			BnetRegion: BnetRegion[replay.region?.toString()]?.toString(),
 		},
