@@ -21,7 +21,7 @@ Resources:
                 - AmazonSQSFullAccess
                 # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
-                LambdaName: process-save-match-stats
+                LambdaName: process-sync-stats
             Events:
                 SQSEvent:
                     Type: SQS
