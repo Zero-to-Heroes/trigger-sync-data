@@ -5,9 +5,13 @@ import { StatsBuilder } from './stats-builder';
 // the more traditional callback-style handler.
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
-	const messages: readonly ReviewMessage[] = event.Records.map(record => record.Sns.Message).map(msg =>
-		JSON.parse(msg),
-	);
+	// console.log('event', JSON.stringify(event));
+	const messages: readonly ReviewMessage[] = (event.Records as any[])
+		.map(event => JSON.parse(event.body))
+		.reduce((a, b) => a.concat(b), [])
+		.filter(event => event);
+	// console.log('input', JSON.stringify(messages));
 	await new StatsBuilder().buildStats(messages);
-	return { statusCode: 200, body: 'ok' };
+	// console.log('built stats', JSON.stringify(stats));
+	return { statusCode: 200, body: null };
 };

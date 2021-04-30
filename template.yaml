@@ -5,29 +5,28 @@ Transform: AWS::Serverless-2016-10-31
 Description: Sync some data with third parties
 
 Resources:
-    SyncStatsFunction:
+    ProcessSyncStatsFunction:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: sync-data.default
+            Handler: process-sync-stats.default
             Runtime: nodejs10.x
-            # Because of BG games
-            Timeout: 30
-            CodeUri: ./dist/sync-data
+            CodeUri: ./dist/process-sync-stats
+            Timeout: 30 # Because of BG games
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
             ReservedConcurrentExecutions: 5
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
-                - AmazonSESFullAccess
                 - SecretsManagerReadWrite
-                - AmazonSNSReadOnlyAccess
+                - AmazonSESFullAccess
+                - AmazonSQSFullAccess
                 # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
-                LambdaName: trigger-sync-data
+                LambdaName: process-save-match-stats
             Events:
-                ReviewPublishedSnsTopic:
-                    Type: SNS
+                SQSEvent:
+                    Type: SQS
                     Properties:
-                        Topic: arn:aws:sns:us-west-2:478062583808:review-published
+                        Queue: arn:aws:sqs:us-west-2:478062583808:ranked-review-published-queue
     ReprocessStatsFunction:
         Type: AWS::Serverless::Function
         Properties:
@@ -38,13 +37,6 @@ Resources:
             CodeUri: ./dist/sync-data-reprocess
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
             ReservedConcurrentExecutions: 40
-            # https://stackoverflow.com/questions/39144688/aws-lambda-invoke-not-calling-another-lambda-function-node-js
-            # VpcConfig:
-            #     SecurityGroupIds:
-            #         - sg-0ed63616362bf1a30
-            #     SubnetIds:
-            #         - subnet-0b36da5c19637a351
-            #         - subnet-0b730ca9af74a95dd
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - AmazonSESFullAccess
