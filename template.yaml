@@ -9,19 +9,12 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: sync-data.default
-            # Runtime: nodejs8.10 # Used for dev
             Runtime: nodejs10.x
-            Timeout: 10
+            # Because of BG games
+            Timeout: 30
             CodeUri: ./dist/sync-data
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
-            ReservedConcurrentExecutions: 40
-            # https://stackoverflow.com/questions/39144688/aws-lambda-invoke-not-calling-another-lambda-function-node-js
-            # VpcConfig:
-            #     SecurityGroupIds:
-            #         - sg-0ed63616362bf1a30
-            #     SubnetIds:
-            #         - subnet-0b36da5c19637a351
-            #         - subnet-0b730ca9af74a95dd
+            ReservedConcurrentExecutions: 5
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - AmazonSESFullAccess
