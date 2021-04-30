@@ -5,6 +5,37 @@ Transform: AWS::Serverless-2016-10-31
 Description: Sync some data with third parties
 
 Resources:
+    SyncStatsStatsQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: sync-stats-queue
+            VisibilityTimeout: 601
+    SyncStatsSqsQueuePolicy:
+        Type: AWS::SQS::QueuePolicy
+        Properties:
+            PolicyDocument:
+                Version: '2012-10-17'
+                Id: SyncStatsStatsQueuePolicy
+                Statement:
+                    - Sid: Allow-SNS-SendMessage
+                      Effect: Allow
+                      Principal:
+                          AWS: '*'
+                      Action:
+                          - sqs:SendMessage
+                      Resource: !GetAtt SyncStatsStatsQueue.Arn
+                      Condition:
+                          ArnEquals:
+                              aws:SourceArn: arn:aws:sns:us-west-2:478062583808:review-published
+            Queues:
+                - !Ref SyncStatsStatsQueue
+    SnsSubscription:
+        Type: AWS::SNS::Subscription
+        Properties:
+            Protocol: SQS
+            Endpoint: !GetAtt SyncStatsStatsQueue.Arn
+            TopicArn: arn:aws:sns:us-west-2:478062583808:review-published
+
     ProcessSyncStatsFunction:
         Type: AWS::Serverless::Function
         Properties:
@@ -26,7 +57,7 @@ Resources:
                 SQSEvent:
                     Type: SQS
                     Properties:
-                        Queue: arn:aws:sqs:us-west-2:478062583808:ranked-review-published-queue
+                        Queue: !GetAtt SyncStatsStatsQueue.Arn
     ReprocessStatsFunction:
         Type: AWS::Serverless::Function
         Properties:
