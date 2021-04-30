@@ -15,7 +15,6 @@ export class ReplayParser extends EventEmitter {
 			.findall('.//Player')
 			.find(player => player.get('isMainPlayer') === 'false');
 		const opponentPlayerEntityId = opponentPlayerElement.get('id');
-		// console.log('mainPlayerEntityId', opponentPlayerEntityId);
 		const structure: ParsingStructure = {
 			currentTurn: 0,
 			// boardOverTurn: Map.of(),
@@ -97,12 +96,10 @@ export class ReplayParser extends EventEmitter {
 					const winner = structure.entities[attackAction.get('entity')];
 					const result = winner.controller === this.replay.mainPlayerId ? 'won' : 'lost';
 					const attacker = attackAction.find(`.//TagChange[@tag='${GameTag.ATTACKING}'][@value='1']`);
-					// console.log('handling attack action', attacker, attackAction.attrib);
 					const attackerEntityId = attacker.get('entity');
 					const defenderEntityId = attackAction
 						.find(`.//TagChange[@tag='${GameTag.DEFENDING}'][@value='1']`)
 						.get('entity');
-					// console.log('attackerEntityId', 'defenderEntityId', attackerEntityId, defenderEntityId);
 					const playerEntityId =
 						structure.entities[attackerEntityId].controller === this.replay.mainPlayerId
 							? attackerEntityId
@@ -130,7 +127,6 @@ export class ReplayParser extends EventEmitter {
 			if (currentTurn === 0) {
 				return;
 			}
-			// console.log('battle start', currentTurn, turnChangeElement);
 			const playerEntitiesOnBoard = Object.values(structure.entities)
 				// .map(entity => entity as any)
 				.filter(entity => entity.controller === this.replay.mainPlayerId)
@@ -249,7 +245,6 @@ const toTimestamp = (ts: string): Date => {
 // 			structure.rerollsIds.indexOf(element.get('entity')) !== -1 &&
 // 			element.findall('.FullEntity').length > 0
 // 		) {
-// 			// console.log('adding one reroll', structure.rerollsForTurn, element);
 // 			structure.rerollsForTurn = structure.rerollsForTurn + 1;
 // 		}
 // 	};
@@ -265,7 +260,6 @@ const toTimestamp = (ts: string): Date => {
 // 			parseInt(element.get('type')) === BlockType.POWER &&
 // 			structure.minionsSoldIds.indexOf(element.get('entity')) !== -1
 // 		) {
-// 			// console.log('adding one reroll', structure.rerollsForTurn, element);
 // 			structure.minionsSoldForTurn = structure.minionsSoldForTurn + 1;
 // 		}
 // 	};
@@ -275,7 +269,6 @@ const toTimestamp = (ts: string): Date => {
 // 	return (element: Element) => {
 // 		// For now we only consider damage in attacks / powers, which should cover most cases
 // 		if (element.tag?.toString() === 'Block') {
-// 			// console.log('handling block', element.tag, element.get('type'), element.get('entity'));
 // 			const actionEntity = structure.entities[element.get('entity')];
 // 			if (!actionEntity) {
 // 				// console.warn('could not find entity', element.get('entity'));
@@ -285,17 +278,14 @@ const toTimestamp = (ts: string): Date => {
 // 			// If it's an attack, the attacker deals to the def, and vice versa
 // 			if ([BlockType.ATTACK].indexOf(parseInt(element.get('type'))) !== -1) {
 // 				// const debug = element.get('entity') === '6205';
-// 				// console.log('handling attack', element.get('entity'), '6205', damageTags.length);
 // 				const attackerEntityId = element.find(`.//TagChange[@tag='${GameTag.ATTACKING}']`)?.get('entity');
 // 				const defenderEntityId = element.find(`.//TagChange[@tag='${GameTag.DEFENDING}']`)?.get('entity');
 // 				damageTags.forEach(tag => {
 // 					const infos = tag.findall(`.Info`);
 // 					// if (debug) {
-// 					// 	// console.log('handling damage tag', tag);
 // 					// }
 // 					infos.forEach(info => {
 // 						// if (debug) {
-// 						// 	// console.log('handling info', info);
 // 						// }
 // 						const damagedEntity = structure.entities[info.get('entity')];
 // 						// if (info.get('entity') === '6205') {
@@ -370,7 +360,6 @@ const toTimestamp = (ts: string): Date => {
 // 						infos.forEach(info => {
 // 							const damagedEntity = structure.entities[info.get('entity')];
 // 							// if (damagedEntity.cardId === 'BGS_038') {
-// 							// 	console.log('handling damage done to us', tag, element);
 // 							// }
 // 							if (
 // 								damagedEntity.controller === replay.mainPlayerId &&
@@ -413,11 +402,9 @@ const compositionForTurnParse = (structure: ParsingStructure) => {
 				structure.entities[element.get('entity')].controller = parseInt(element.get('value'));
 			}
 			if (parseInt(element.get('tag')) === GameTag.ZONE) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].zone = parseInt(element.get('value'));
 			}
 			if (parseInt(element.get('tag')) === GameTag.ZONE_POSITION) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].zonePosition = parseInt(element.get('value'));
 			}
 			if (parseInt(element.get('tag')) === GameTag.ATK) {
@@ -425,23 +412,18 @@ const compositionForTurnParse = (structure: ParsingStructure) => {
 				structure.entities[element.get('entity')].atk = parseInt(element.get('value'));
 			}
 			if (parseInt(element.get('tag')) === GameTag.HEALTH) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].health = parseInt(element.get('value'));
 			}
 			if (parseInt(element.get('tag')) === GameTag.DIVINE_SHIELD) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].divineShield = parseInt(element.get('value')) === 1;
 			}
 			if (parseInt(element.get('tag')) === GameTag.POISONOUS) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].poisonous = parseInt(element.get('value')) === 1;
 			}
 			if (parseInt(element.get('tag')) === GameTag.TAUNT) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].taunt = parseInt(element.get('value')) === 1;
 			}
 			if (parseInt(element.get('tag')) === GameTag.REBORN) {
-				// console.log('entity', child.get('entity'), structure.entities[child.get('entity')]);
 				structure.entities[element.get('entity')].reborn = parseInt(element.get('value')) === 1;
 			}
 		}
@@ -463,12 +445,10 @@ const parseElement = (
 			parseInt(element.get('tag')) === GameTag.NEXT_STEP &&
 			parseInt(element.get('value')) === Step.MAIN_START_TRIGGERS
 		) {
-			// console.log('considering parent', parent.get('entity'), parent);
 			if (parent && parent.get('entity') === opponentPlayerEntityId) {
 				populateFunctions.forEach(populateFunction => populateFunction(turnCountWrapper.currentTurn, element));
 				turnCountWrapper.currentTurn++;
 			}
-			// console.log('board for turn', structure.currentTurn, mainPlayerId, '\n', playerEntitiesOnBoard);
 		}
 	}
 

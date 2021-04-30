@@ -16,7 +16,6 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 		const parser = new ReplayParser(replay);
 		const events: JsonEvent[] = [];
 		parser.on('bgsBattleStart', event => {
-			// console.log('bgsBattleStart', event);
 			events.push({
 				name: 'bgsBattleStart',
 				time: event.time,
@@ -31,7 +30,6 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 			} as JsonEvent);
 		});
 		parser.on('bgsBattleResult', event => {
-			// console.log('bgsBattleResult', event);
 			events.push({
 				name: 'bgsBattleResult',
 				time: event.time,
@@ -57,9 +55,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 			},
 		};
 		try {
-			console.log('parsing over', result);
 			const postResult = await axios.post('https://firestone-ow.kda.gg/ingest/events', result);
-			console.log('sent stats to KDA', postResult.status, postResult.statusText);
 		} catch (e) {
 			console.error('Could not send request to KDA', e);
 		}

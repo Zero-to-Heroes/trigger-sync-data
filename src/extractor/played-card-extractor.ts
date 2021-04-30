@@ -9,7 +9,6 @@ const validZones = [Zone.PLAY, Zone.GRAVEYARD, Zone.REMOVEDFROMGAME, Zone.SETASI
 export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
 	// const playerCardId: string = extractPlayerCardId(replay, playerId);
 	const idControllerMapping = buildIdToControllerMapping(replay);
-	// console.log('idControllerMapping', idControllerMapping);
 	const entitiesWithCards = replay.replay
 		.findall(`.//*[@cardID]`)
 		.filter(element => element.tag !== 'ChangeEntity')
@@ -61,7 +60,6 @@ export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playe
 	// 	'entityCardIds',
 	// 	playerEntities.map(entity => getCardId(entity)),
 	// );
-	// console.log('playedCards', playedCards);
 	return playedCards;
 };
 

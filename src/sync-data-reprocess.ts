@@ -9,7 +9,6 @@ export default async (event): Promise<any> => {
 		.map(event => JSON.parse(event.body))
 		.reduce((a, b) => a.concat(b), [])
 		.map(body => JSON.parse(body.Message));
-	console.log('reparsing messages', messages);
 	await new StatsBuilder().buildStats(messages);
 	return { statusCode: 200, body: 'ok' };
 };

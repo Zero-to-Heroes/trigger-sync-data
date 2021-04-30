@@ -13,17 +13,12 @@ export class StatsBuilder {
 	}
 
 	private async buildStat(message: ReviewMessage): Promise<void> {
-		console.log('processing message', message);
-		// console.log('building stat for', message.reviewId, message.replayKey);
 		const replayString = await this.loadReplayString(message.replayKey);
 		// const replayString = testXml;
 		if (!replayString || replayString.length === 0) {
-			console.log('empty replay, returning');
 			return null;
 		}
-		console.log('loaded replay string', replayString.length);
 		const replay: Replay = parseHsReplayString(replayString);
-		// console.log('parsed replay', JSON.stringify(replay, null, 4));
 		await Promise.all([
 			extractViciousSyndicateStats(message, replay, replayString),
 			buildJsonEvents(message, replay, replayString),

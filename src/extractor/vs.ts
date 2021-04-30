@@ -16,12 +16,10 @@ export const extractViciousSyndicateStats = async (
 			replay.gameType,
 		)
 	) {
-		console.log('ai game, returning', message, replay.gameType);
 		return;
 	}
 
 	if ([GameType.GT_BATTLEGROUNDS, GameType.GT_BATTLEGROUNDS_FRIENDLY].includes(replay.gameType)) {
-		console.log('bg, returning', message, replay.gameType);
 		return;
 	}
 
@@ -65,14 +63,11 @@ export const extractViciousSyndicateStats = async (
 			going_first: replay.playCoin === 'coin',
 		},
 	};
-	console.log('extracted vs stats', JSON.stringify(vsStats));
 	if (vsStats.friendly_player.cards.length === 0) {
-		console.log('no cards');
 		return;
 	}
 	try {
 		const result = await axios.post('http://datareaper.vicioussyndicate.com/fs', vsStats);
-		console.log('sent stats', result.status, result.statusText);
 	} catch (e) {
 		console.error('Could not send request to VS', JSON.stringify(vsStats, null, 4), e);
 	}
@@ -86,7 +81,6 @@ const convertLeagueToRank = (playerRank: string): [number, number] => {
 		return [51, parseInt(playerRank.split('legend-')[1])];
 	}
 	if (playerRank.indexOf('-') === -1) {
-		console.log('cant parse rank', playerRank);
 		return [null, 0];
 	}
 	const league = (5 - parseInt(playerRank.split('-')[0])) * 10;
