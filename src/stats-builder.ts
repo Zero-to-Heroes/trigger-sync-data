@@ -8,11 +8,14 @@ import { ReviewMessage } from './review-message';
 const s3 = new S3();
 
 export class StatsBuilder {
-	public async buildStats(messages: readonly ReviewMessage[]): Promise<void> {
-		await Promise.all(messages.map(msg => this.buildStat(msg)));
+	public async buildStats(messages: readonly ReviewMessage[], verbose = false): Promise<void> {
+		await Promise.all(messages.map(msg => this.buildStat(msg, verbose)));
 	}
 
-	private async buildStat(message: ReviewMessage): Promise<void> {
+	private async buildStat(message: ReviewMessage, verbose = false): Promise<void> {
+		if (verbose) {
+			console.log('sync', message);
+		}
 		const replayString = await this.loadReplayString(message.replayKey);
 		// const replayString = testXml;
 		if (!replayString || replayString.length === 0) {
