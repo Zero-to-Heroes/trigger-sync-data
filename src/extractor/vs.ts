@@ -29,6 +29,10 @@ export const extractViciousSyndicateStats = async (
 		return;
 	}
 
+	if (!message.playerClass || !message.opponentClass) {
+		return;
+	}
+
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 	const vsStats = {
@@ -67,7 +71,7 @@ export const extractViciousSyndicateStats = async (
 		return;
 	}
 	try {
-		const result = await axios.post('http://datareaper.vicioussyndicate.com/fs', vsStats);
+		await axios.post('http://datareaper.vicioussyndicate.com/fs', vsStats);
 	} catch (e) {
 		console.error('Could not send request to VS', JSON.stringify(vsStats, null, 4), e);
 	}

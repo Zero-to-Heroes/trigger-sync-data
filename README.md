@@ -7,7 +7,7 @@ npm run build && sam local invoke -t template.yaml -e event.json SyncStatsFuncti
 # Deploy
 
 ```
-npm run build && npm run package && npm run deploy
+rm -rf dist/ && npm run build && npm run package && npm run deploy
 ```
 
 # Reference
