@@ -16,6 +16,7 @@ export class StatsBuilder {
 		if (verbose) {
 			console.log('sync', message);
 		}
+
 		const replayString = await this.loadReplayString(message.replayKey);
 		// const replayString = testXml;
 		if (!replayString || replayString.length === 0) {

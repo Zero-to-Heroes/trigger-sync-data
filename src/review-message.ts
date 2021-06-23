@@ -1,4 +1,4 @@
-import { GameFormatString } from '@firestone-hs/reference-data';
+import { GameFormatString, Race } from '@firestone-hs/reference-data';
 
 export interface ReviewMessage {
 	readonly coinPlay: 'play' | 'coin';
@@ -26,4 +26,5 @@ export interface ReviewMessage {
 	readonly scenarioId: string;
 	readonly additionalResult: string;
 	readonly replayKey: string;
+	readonly availableTribes: readonly Race[];
 }

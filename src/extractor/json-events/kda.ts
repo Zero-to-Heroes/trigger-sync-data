@@ -13,8 +13,8 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 		return;
 	}
 	try {
-		const parser = new ReplayParser(replay);
 		const events: JsonEvent[] = [];
+		const parser = new ReplayParser(replay);
 		parser.on('bgsBattleStart', event => {
 			events.push({
 				name: 'bgsBattleStart',
@@ -49,8 +49,10 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 				metadata: {
 					playerFinishPosition: parseInt(message.additionalResult),
 					playerMmr: parseInt(message.playerRank),
+					playerHero: message.playerCardId,
 					patchNumber: parseInt(message.buildNumber),
 					internalGameId: message.reviewId,
+					availableTribes: message.availableTribes,
 				},
 			},
 		};
