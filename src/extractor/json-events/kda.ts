@@ -53,6 +53,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 					patchNumber: parseInt(message.buildNumber),
 					internalGameId: message.reviewId,
 					availableTribes: message.availableTribes,
+					hasPrizes: message.bgsHasPrizes,
 				},
 			},
 		};

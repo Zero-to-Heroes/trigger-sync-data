@@ -7,4 +7,5 @@ export interface JsonEventsMetadata {
 	readonly patchNumber: number;
 	readonly internalGameId: string;
 	readonly availableTribes: readonly Race[];
+	readonly hasPrizes: boolean;
 }

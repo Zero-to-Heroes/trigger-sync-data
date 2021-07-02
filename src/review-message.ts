@@ -27,4 +27,5 @@ export interface ReviewMessage {
 	readonly additionalResult: string;
 	readonly replayKey: string;
 	readonly availableTribes: readonly Race[];
+	readonly bgsHasPrizes: boolean;
 }
