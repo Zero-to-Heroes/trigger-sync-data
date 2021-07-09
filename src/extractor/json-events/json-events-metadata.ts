@@ -8,4 +8,5 @@ export interface JsonEventsMetadata {
 	readonly internalGameId: string;
 	readonly availableTribes: readonly Race[];
 	readonly hasPrizes: boolean;
+	readonly prizesPicked: readonly string[];
 }

@@ -15,6 +15,7 @@ export interface ParsingStructure {
 			poisonous: boolean;
 			taunt: boolean;
 			reborn: boolean;
+			creatorEntityId: number;
 		};
 	};
 	// playerHps: {

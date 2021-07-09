@@ -40,9 +40,22 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 				},
 			} as JsonEvent);
 		});
+		parser.on('bgsPrizePicked', event => {
+			events.push({
+				name: 'bgsPrizePicked',
+				time: event.time,
+				data: {
+					cardId: event.cardId,
+				},
+			} as JsonEvent);
+		});
 
 		parser.parse();
 
+		const prizesPicked = events.filter(event => event.name === 'bgsPrizePicked').map(event => event.data.cardId);
+		if (message.bgsHasPrizes) {
+			console.log('prizes', prizesPicked);
+		}
 		const result: JsonEventsResult = {
 			events: {
 				events: events,
@@ -54,6 +67,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 					internalGameId: message.reviewId,
 					availableTribes: message.availableTribes,
 					hasPrizes: message.bgsHasPrizes,
+					prizesPicked: prizesPicked,
 				},
 			},
 		};

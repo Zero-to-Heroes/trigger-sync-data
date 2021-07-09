@@ -1,5 +1,7 @@
 export interface JsonEvent {
-	readonly name: string;
+	readonly name: EventName;
 	readonly time: Date;
 	readonly data: any;
 }
+
+export type EventName = 'bgsPrizePicked' | 'bgsBattleResult' | 'bgsBattleStart';
