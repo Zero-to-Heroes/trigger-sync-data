@@ -6,6 +6,7 @@ import axios from 'axios';
 import { ReviewMessage } from '../../review-message';
 import { JsonEvent } from './json-event';
 import { JsonEventsResult } from './json-events-result';
+import { normalizeHeroCardId } from './parsers/utils';
 import { ReplayParser } from './replay-parser';
 
 export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, replayString: string): Promise<void> => {
@@ -62,7 +63,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 				metadata: {
 					playerFinishPosition: parseInt(message.additionalResult),
 					playerMmr: parseInt(message.playerRank),
-					playerHero: message.playerCardId,
+					playerHero: normalizeHeroCardId(message.playerCardId),
 					patchNumber: parseInt(message.buildNumber),
 					internalGameId: message.reviewId,
 					availableTribes: message.availableTribes,

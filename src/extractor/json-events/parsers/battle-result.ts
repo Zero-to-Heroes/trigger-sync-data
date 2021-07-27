@@ -4,7 +4,7 @@ import { BlockType, GameTag } from '@firestone-hs/reference-data';
 import { Element } from 'elementtree';
 import { EventName } from '../json-event';
 import { ParsingStructure } from '../parsing-structure';
-import { toTimestamp } from './utils';
+import { normalizeHeroCardId, toTimestamp } from './utils';
 
 export const battleResult = {
 	parser: (replay: Replay, structure: ParsingStructure, emitter: (eventName: EventName, event: any) => void) =>
@@ -46,7 +46,7 @@ const handleBattleResult = (
 					structure.entities[attackerEntityId].controller === replay.mainPlayerId
 						? attackerEntityId
 						: defenderEntityId;
-				const playerCardId = structure.entities[playerEntityId].cardId;
+				const playerCardId = normalizeHeroCardId(structure.entities[playerEntityId].cardId);
 				const opponentEntityId =
 					structure.entities[attackerEntityId].controller === replay.mainPlayerId
 						? defenderEntityId

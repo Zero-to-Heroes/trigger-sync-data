@@ -7,7 +7,6 @@ import { ReviewMessage } from '../review-message';
 const validZones = [Zone.PLAY, Zone.GRAVEYARD, Zone.REMOVEDFROMGAME, Zone.SETASIDE];
 
 export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
-	// const playerCardId: string = extractPlayerCardId(replay, playerId);
 	const idControllerMapping = buildIdToControllerMapping(replay);
 	const entitiesWithCards = replay.replay
 		.findall(`.//*[@cardID]`)
