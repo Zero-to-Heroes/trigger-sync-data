@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import SqlString from 'sqlstring';
+import { getConnection } from './db/rds';
 import { S3 } from './db/s3';
-import { buildJsonEvents } from './extractor/json-events/kda';
-import { extractViciousSyndicateStats } from './extractor/vs';
+import { toD0nkey } from './extractor/d0kney';
+import { buildJsonEvents as toKda } from './extractor/json-events/kda';
+import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
+import { Preferences } from './preferences';
 import { ReviewMessage } from './review-message';
 
 const s3 = new S3();
@@ -17,15 +21,16 @@ export class StatsBuilder {
 			console.log('sync', message);
 		}
 
+		const prefs: Preferences = await this.loadPrefs(message.userId);
 		const replayString = await this.loadReplayString(message.replayKey);
-		// const replayString = testXml;
 		if (!replayString || replayString.length === 0) {
 			return null;
 		}
 		const replay: Replay = parseHsReplayString(replayString);
 		await Promise.all([
-			extractViciousSyndicateStats(message, replay, replayString),
-			buildJsonEvents(message, replay, replayString),
+			toViciousSyndicate(message, replay, replayString, prefs),
+			toD0nkey(message, replay, replayString, prefs),
+			toKda(message, replay, replayString),
 		]);
 	}
 
@@ -38,5 +43,23 @@ export class StatsBuilder {
 			: await s3.readContentAsString('xml.firestoneapp.com', replayKey);
 		// const data = await http(`http://xml.firestoneapp.com/${replayKey}`);
 		return data;
+	}
+
+	private async loadPrefs(userId: string): Promise<Preferences> {
+		const mysql = await getConnection();
+		const query = `
+			SELECT prefs, lastUpdateDate FROM user_prefs
+			WHERE userId = ${SqlString.escape(userId)}
+			ORDER BY lastUpdateDate DESC;
+		`;
+		console.log('running query', query);
+		const result: any[] = await mysql.query(query);
+		console.log('result', result);
+		return result.length === 0
+			? {
+					shareGamesWithVS: true,
+					d0nkeySync: true,
+			  }
+			: JSON.parse(result[0].prefs);
 	}
 }

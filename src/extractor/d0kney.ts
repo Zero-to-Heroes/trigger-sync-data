@@ -1,36 +1,29 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
+import { GetSecretValueRequest } from 'aws-sdk/clients/secretsmanager';
 import axios from 'axios';
+import { getSecret, SecretInfo } from '../db/rds';
 import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
-import { extractPlayedCards } from './played-card-extractor';
 
-export const extractViciousSyndicateStats = async (
+export const toD0nkey = async (
 	message: ReviewMessage,
 	replay: Replay,
 	replayString: string,
 	prefs: Preferences,
 ): Promise<void> => {
-	if (!prefs.shareGamesWithVS) {
+	if (!prefs.d0nkeySync) {
 		return;
 	}
 
-	if (
-		[GameType.GT_VS_AI, GameType.GT_TAVERNBRAWL, GameType.GT_TB_1P_VS_AI, GameType.GT_TB_2P_COOP].includes(
-			replay.gameType,
-		)
-	) {
-		return;
-	}
-
-	if ([GameType.GT_BATTLEGROUNDS, GameType.GT_BATTLEGROUNDS_FRIENDLY].includes(replay.gameType)) {
+	const gameType = getGameType(message.gameMode);
+	if (![GameType.GT_RANKED.toString()].includes(gameType)) {
 		return;
 	}
 
 	const formatType = getFormatType(message.gameFormat);
-	const gameType = getGameType(message.gameMode);
 	if (formatType === GameFormat.FT_UNKNOWN.toString() || gameType === GameType.GT_UNKNOWN.toString()) {
 		return;
 	}
@@ -41,45 +34,44 @@ export const extractViciousSyndicateStats = async (
 
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
-	const vsStats = {
-		game_id: message.reviewId,
-		timestamp: Date.now(),
-		game_duration_in_seconds: extractTotalDuration(replay),
-		patchNumber: parseInt(message.buildNumber),
-		game_meta: {
-			BuildNumber: parseInt(message.buildNumber),
-			FormatType: formatType,
-			GameType: gameType,
-			ScenarioID: parseInt(message.scenarioId),
-			BnetRegion: BnetRegion[replay.region?.toString()]?.toString(),
-		},
-		friendly_player: {
-			player_id: replay.mainPlayerId,
-			class: message.playerClass.toUpperCase(),
-			PLAYSTATE: message.result.toUpperCase(),
-			cards: extractPlayedCards(replay, message, replay.mainPlayerId),
-			deckstring: message.playerDecklist,
+	const stats = {
+		player: {
+			battleTag: message.playerName,
+			class: message.playerClass,
 			rank: playerRank,
 			legendRank: playerLegendRank,
-			going_first: replay.playCoin === 'play',
+			deckcode: message.playerDecklist,
 		},
 		opposing_player: {
-			player_id: replay.opponentPlayerId,
-			class: message.opponentClass.toUpperCase(),
-			PLAYSTATE: getOpponentPlaystate(message.result),
-			cards: extractPlayedCards(replay, message, replay.opponentPlayerId),
+			battleTag: message.opponentName,
+			class: message.opponentClass,
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
-			going_first: replay.playCoin === 'coin',
+			deckcode: null,
 		},
+		game_id: message.reviewId,
+		game_type: gameType,
+		format: formatType,
+		result: message.result.toUpperCase(),
+		region: BnetRegion[replay.region?.toString()]?.toString(),
 	};
-	if (vsStats.friendly_player.cards.length === 0) {
-		return;
-	}
 	try {
-		await axios.post('http://datareaper.vicioussyndicate.com/fs', vsStats);
+		const secretRequest: GetSecretValueRequest = {
+			SecretId: 'd0nkey',
+		};
+		const secret: SecretInfo = await getSecret(secretRequest);
+		console.log('sending auth', {
+			username: secret.username,
+			password: secret.password,
+		});
+		await axios.put('https://www.d0nkey.top/api/dt/game', stats, {
+			auth: {
+				username: secret.username,
+				password: secret.password,
+			},
+		});
 	} catch (e) {
-		console.error('Could not send request to VS', JSON.stringify(vsStats, null, 4), e);
+		console.error('Could not send request to d0nkey', JSON.stringify(stats, null, 4), e);
 	}
 };
 
@@ -96,17 +88,6 @@ const convertLeagueToRank = (playerRank: string): [number, number] => {
 	const league = (5 - parseInt(playerRank.split('-')[0])) * 10;
 	const rank = 10 - parseInt(playerRank.split('-')[1]) + 1;
 	return [league + rank, 0];
-};
-
-const getOpponentPlaystate = (playerPlayState: 'lost' | 'won' | 'tied'): string => {
-	switch (playerPlayState) {
-		case 'lost':
-			return 'WON';
-		case 'tied':
-			return 'TIED';
-		case 'won':
-			return 'LOST';
-	}
 };
 
 const getGameType = (gameMode: string): string => {
@@ -126,8 +107,6 @@ const getGameType = (gameMode: string): string => {
 		case 'tavern-brawl':
 		case 'tavernbrawl':
 			return GameType.GT_TAVERNBRAWL.toString();
-		case 'ranked':
-			return GameType.GT_RANKED.toString();
 		default:
 			return GameType.GT_UNKNOWN.toString();
 	}

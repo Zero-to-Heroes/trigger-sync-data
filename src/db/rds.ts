@@ -38,7 +38,7 @@ const getConnection = async (): Promise<serverlessMysql.ServerlessMysql> => {
 
 export { getConnection };
 
-const getSecret = (secretRequest: GetSecretValueRequest) => {
+export const getSecret = (secretRequest: GetSecretValueRequest) => {
 	return new Promise<SecretInfo>(resolve => {
 		secretsManager.getSecretValue(secretRequest, (err, data: GetSecretValueResponse) => {
 			const secretInfo: SecretInfo = JSON.parse(data.SecretString);
@@ -47,7 +47,7 @@ const getSecret = (secretRequest: GetSecretValueRequest) => {
 	});
 };
 
-interface SecretInfo {
+export interface SecretInfo {
 	readonly username: string;
 	readonly password: string;
 	readonly host: string;
