@@ -60,10 +60,10 @@ export const toD0nkey = async (
 			SecretId: 'd0nkey',
 		};
 		const secret: SecretInfo = await getSecret(secretRequest);
-		console.log('sending auth', {
-			username: secret.username,
-			password: secret.password,
-		});
+		// console.log('sending auth', {
+		// 	username: secret.username,
+		// 	password: secret.password,
+		// });
 		await axios.put('https://www.d0nkey.top/api/dt/game', stats, {
 			auth: {
 				username: secret.username,

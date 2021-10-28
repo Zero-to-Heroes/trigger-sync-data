@@ -52,9 +52,9 @@ export class StatsBuilder {
 			WHERE userId = ${SqlString.escape(userId)}
 			ORDER BY lastUpdateDate DESC;
 		`;
-		console.log('running query', query);
+		// console.log('running query', query);
 		const result: any[] = await mysql.query(query);
-		console.log('result', result);
+		// console.log('result', result);
 		return result.length === 0
 			? {
 					shareGamesWithVS: true,

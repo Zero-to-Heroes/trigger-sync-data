@@ -55,7 +55,7 @@ export const buildJsonEvents = async (message: ReviewMessage, replay: Replay, re
 
 		const prizesPicked = events.filter(event => event.name === 'bgsPrizePicked').map(event => event.data.cardId);
 		if (message.bgsHasPrizes) {
-			console.log('prizes', prizesPicked);
+			// console.log('prizes', prizesPicked);
 		}
 		const result: JsonEventsResult = {
 			events: {

@@ -42,7 +42,7 @@ const runTest = () => {
 		} as JsonEvent);
 	});
 	parser.parse();
-	console.log(events);
+	// console.log(events);
 };
 
 runTest();

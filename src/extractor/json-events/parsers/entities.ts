@@ -117,13 +117,20 @@ const populate = (replay: Replay, structure: ParsingStructure, emitter: (eventNa
 };
 
 const hasCleave = (cardId: string): boolean => {
-	return [CardIds.Collectible.Hunter.CaveHydra, CardIds.Collectible.Neutral.FoeReaper4000].indexOf(cardId) !== -1;
+	return (
+		[
+			CardIds.CaveHydra,
+			CardIds.CaveHydraBattlegrounds,
+			CardIds.FoeReaper4000,
+			CardIds.FoeReaper4000Battlegrounds,
+		].indexOf(cardId as CardIds) !== -1
+	);
 };
 
 const hasWindfury = (cardId: string): boolean => {
-	return !hasMegaWindfury(cardId) && [CardIds.NonCollectible.Neutral.ZappSlywick].indexOf(cardId) !== -1;
+	return !hasMegaWindfury(cardId) && [CardIds.ZappSlywick].indexOf(cardId as CardIds) !== -1;
 };
 
 const hasMegaWindfury = (cardId: string): boolean => {
-	return [CardIds.NonCollectible.Neutral.ZappSlywickTavernBrawl].indexOf(cardId) !== -1;
+	return [CardIds.ZappSlywick, CardIds.ZappSlywickBattlegrounds].indexOf(cardId as CardIds) !== -1;
 };

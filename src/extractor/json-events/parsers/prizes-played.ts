@@ -20,7 +20,7 @@ const handlePrizes = (
 			const chosenEntity = structure.entities[element.find(`Choice`)?.get('entity')];
 			if (chosenEntity.cardType === CardType.SPELL) {
 				const creator = structure.entities['' + chosenEntity.creatorEntityId];
-				if (creator?.cardId === CardIds.NonCollectible.Neutral.Baconshop8playerenchantTavernBrawl) {
+				if (creator?.cardId === CardIds.Baconshop8playerenchantEnchantmentBattlegrounds) {
 					emitter('bgsPrizePicked', {
 						cardId: chosenEntity.cardId,
 						time: toTimestamp(element.get('ts')),

@@ -44,7 +44,7 @@ Resources:
             CodeUri: ./dist/process-sync-stats
             Timeout: 30 # Because of BG games
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
-            ReservedConcurrentExecutions: 5
+            ReservedConcurrentExecutions: 10
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - SecretsManagerReadWrite

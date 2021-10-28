@@ -17,15 +17,7 @@ export const extractViciousSyndicateStats = async (
 		return;
 	}
 
-	if (
-		[GameType.GT_VS_AI, GameType.GT_TAVERNBRAWL, GameType.GT_TB_1P_VS_AI, GameType.GT_TB_2P_COOP].includes(
-			replay.gameType,
-		)
-	) {
-		return;
-	}
-
-	if ([GameType.GT_BATTLEGROUNDS, GameType.GT_BATTLEGROUNDS_FRIENDLY].includes(replay.gameType)) {
+	if (![GameType.GT_RANKED].includes(replay.gameType)) {
 		return;
 	}
 
