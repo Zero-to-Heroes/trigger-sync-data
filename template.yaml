@@ -58,6 +58,24 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !GetAtt SyncStatsStatsQueue.Arn
+    TriggerReprocessStatsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: trigger-sync-reprocess.default
+            Runtime: nodejs12.x
+            Timeout: 900
+            CodeUri: ./dist/trigger-sync-reprocess
+            MemorySize: 1024
+            ReservedConcurrentExecutions: 5
+            Policies:
+                - AWSLambdaVPCAccessExecutionRole
+                - AmazonSESFullAccess
+                - AmazonSNSFullAccess
+                - SecretsManagerReadWrite
+                - AmazonSNSReadOnlyAccess
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+            Tags:
+                LambdaName: trigger-sync-reprocess
     ReprocessStatsFunction:
         Type: AWS::Serverless::Function
         Properties:
@@ -75,7 +93,7 @@ Resources:
                 - AmazonSNSReadOnlyAccess
                 # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
-                LambdaName: trigger-sync-data-reprocess
+                LambdaName: sync-data-reprocess
             Events:
                 SQSReprocess:
                     Type: SQS
