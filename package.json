@@ -22,7 +22,7 @@
 		"@firestone-hs/hs-replay-xml-parser": "0.0.85",
 		"@firestone-hs/reference-data": "^0.1.166",
 		"@firestone-hs/replay-parser": "^1.1.46",
-		"aws-sdk": "^2.524.0",
+		"aws-sdk": "^2.814.0",
 		"axios": "^0.21.4",
 		"big-integer": "^1.6.48",
 		"cross-fetch": "^3.0.6",
