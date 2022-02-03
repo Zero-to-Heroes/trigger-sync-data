@@ -4,7 +4,6 @@ import SqlString from 'sqlstring';
 import { getConnection } from './db/rds';
 import { S3 } from './db/s3';
 import { toD0nkey } from './extractor/d0kney';
-import { buildJsonEvents as toKda } from './extractor/json-events/kda';
 import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
 import { Preferences } from './preferences';
 import { ReviewMessage } from './review-message';
@@ -17,6 +16,10 @@ export class StatsBuilder {
 	}
 
 	private async buildStat(message: ReviewMessage, verbose = false): Promise<void> {
+		if (!['ranked'].includes(message.gameMode)) {
+			return;
+		}
+
 		if (verbose) {
 			console.log('sync', message);
 		}
@@ -30,7 +33,7 @@ export class StatsBuilder {
 		await Promise.all([
 			toViciousSyndicate(message, replay, replayString, prefs),
 			toD0nkey(message, replay, replayString, prefs),
-			toKda(message, replay, replayString),
+			// toKda(message, replay, replayString),
 		]);
 	}
 

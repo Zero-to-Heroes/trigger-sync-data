@@ -42,7 +42,7 @@ Resources:
             Handler: process-sync-stats.default
             Runtime: nodejs10.x
             CodeUri: ./dist/process-sync-stats
-            Timeout: 30 # Because of BG games
+            Timeout: 60 # Because of BG games
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
             ReservedConcurrentExecutions: 10
             Policies:
