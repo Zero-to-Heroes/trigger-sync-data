@@ -9,8 +9,8 @@ const sns = new Sns();
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
 	const mysql = await getConnection();
-	const startId = 189123703;
-	const endId = 189338884;
+	const startId = 199703340;
+	const endId = 199896855;
 	const query = `
 		SELECT * FROM replay_summary
 		where gameMode = 'ranked'
@@ -26,7 +26,7 @@ export default async (event): Promise<any> => {
 
 	const chunks = chunk(results, 200);
 	for (const chunk of chunks) {
-		console.log('sending chunk');
+		// console.log('sending chunk');
 		await Promise.all(chunk.map(reviewToNotify => sns.notifySyncReprocess(reviewToNotify)));
 	}
 

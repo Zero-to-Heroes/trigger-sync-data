@@ -20,9 +20,9 @@ export class StatsBuilder {
 			return;
 		}
 
-		if (parseInt(message.buildNumber) > 130051) {
-			return;
-		}
+		// if (parseInt(message.buildNumber) > 130051) {
+		// 	return;
+		// }
 
 		if (verbose) {
 			console.log('sync', message);
