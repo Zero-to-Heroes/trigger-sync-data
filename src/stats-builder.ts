@@ -20,7 +20,7 @@ export class StatsBuilder {
 			return;
 		}
 
-		// if (parseInt(message.buildNumber) > 130051) {
+		// if (parseInt(message.buildNumber) > 139719) {
 		// 	return;
 		// }
 
