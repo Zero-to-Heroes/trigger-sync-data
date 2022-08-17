@@ -9,15 +9,15 @@ const sns = new Sns();
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
 	const mysql = await getConnection();
-	const startId = 219_616_725;
-	const endId = 219_871_148;
+	const startId = 240399767;
+	const endId = 240700497;
 	const query = `
 		SELECT * FROM replay_summary
 		where gameMode = 'ranked'
 		and playerRank is not null
 		and id > ${startId}
 		and id < ${endId}
-		and buildNumber = 139963
+		and buildNumber = 145077
 		order by id asc;
 	`;
 	console.log('query', query);
