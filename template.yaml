@@ -65,7 +65,7 @@ Resources:
             Runtime: nodejs12.x
             Timeout: 900
             CodeUri: ./dist/trigger-sync-reprocess
-            MemorySize: 1024
+            MemorySize: 2048
             ReservedConcurrentExecutions: 5
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
