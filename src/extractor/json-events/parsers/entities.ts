@@ -119,9 +119,9 @@ const populate = (replay: Replay, structure: ParsingStructure, emitter: (eventNa
 const hasCleave = (cardId: string): boolean => {
 	return (
 		[
-			CardIds.CaveHydra,
+			CardIds.CaveHydra_BG_LOOT_078,
 			CardIds.CaveHydraBattlegrounds,
-			CardIds.FoeReaper4000,
+			CardIds.FoeReaper4000_BG_GVG_113,
 			CardIds.FoeReaper4000Battlegrounds,
 		].indexOf(cardId as CardIds) !== -1
 	);

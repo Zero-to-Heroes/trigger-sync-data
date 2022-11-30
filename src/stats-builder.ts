@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import { AllCardsService } from '@firestone-hs/reference-data';
 import SqlString from 'sqlstring';
 import { getConnection } from './db/rds';
 import { S3 } from './db/s3';
@@ -9,9 +10,11 @@ import { Preferences } from './preferences';
 import { ReviewMessage } from './review-message';
 
 const s3 = new S3();
+const allCards = new AllCardsService();
 
 export class StatsBuilder {
 	public async buildStats(messages: readonly ReviewMessage[], verbose = false): Promise<void> {
+		await allCards.initializeCardsDb();
 		await Promise.all(messages.map(msg => this.buildStat(msg, verbose)));
 	}
 
@@ -33,7 +36,7 @@ export class StatsBuilder {
 		if (!replayString || replayString.length === 0) {
 			return null;
 		}
-		const replay: Replay = parseHsReplayString(replayString);
+		const replay: Replay = parseHsReplayString(replayString, allCards);
 		await Promise.all([
 			toViciousSyndicate(message, replay, replayString, prefs),
 			toD0nkey(message, replay, replayString, prefs),

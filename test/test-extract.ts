@@ -4,7 +4,7 @@ import { ReplayParser } from '../src/extractor/json-events/replay-parser';
 import { replayString } from './replay.xml';
 
 const runTest = () => {
-	const replay: Replay = parseHsReplayString(replayString);
+	const replay: Replay = parseHsReplayString(replayString, null);
 	const parser = new ReplayParser(replay);
 	const events: JsonEvent[] = [];
 	parser.on('bgsBattleStart', event => {
