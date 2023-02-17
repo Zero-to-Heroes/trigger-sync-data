@@ -14,7 +14,7 @@ export const extractViciousSyndicateStats = async (
 	prefs: Preferences,
 ): Promise<void> => {
 	// return;
-	// if (+message.buildNumber > 158725) {
+	// if (+message.buildNumber > 163976) {
 	// 	return;
 	// }
 
