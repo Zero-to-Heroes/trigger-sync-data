@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import { GetSecretValueRequest } from 'aws-sdk/clients/secretsmanager';
 import axios from 'axios';
-import { getSecret, SecretInfo } from '../db/rds';
+import { SecretInfo, getSecret } from '../db/rds';
 import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
 

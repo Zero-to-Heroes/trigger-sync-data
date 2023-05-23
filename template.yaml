@@ -40,7 +40,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: process-sync-stats.default
-            Runtime: nodejs12.x
+            Runtime: nodejs16.x
             CodeUri: ./dist/process-sync-stats
             Timeout: 60 # Because of BG games
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
@@ -62,7 +62,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: trigger-sync-reprocess.default
-            Runtime: nodejs12.x
+            Runtime: nodejs16.x
             Timeout: 900
             CodeUri: ./dist/trigger-sync-reprocess
             MemorySize: 2048
@@ -80,8 +80,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: sync-data-reprocess.default
-            # Runtime: nodejs8.10 # Used for dev
-            Runtime: nodejs12.x
+            Runtime: nodejs16.x
             Timeout: 10
             CodeUri: ./dist/sync-data-reprocess
             MemorySize: 384 # Increase memory to be able to handle big games like BGS

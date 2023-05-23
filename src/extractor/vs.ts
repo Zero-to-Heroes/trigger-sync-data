@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
@@ -123,8 +122,6 @@ const getGameType = (gameMode: string): string => {
 		case 'tavern-brawl':
 		case 'tavernbrawl':
 			return GameType.GT_TAVERNBRAWL.toString();
-		case 'ranked':
-			return GameType.GT_RANKED.toString();
 		default:
 			return GameType.GT_UNKNOWN.toString();
 	}
