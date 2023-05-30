@@ -13,9 +13,9 @@ export const extractViciousSyndicateStats = async (
 	prefs: Preferences,
 ): Promise<void> => {
 	// return;
-	// if (+message.buildNumber > 163976) {
-	// 	return;
-	// }
+	if (+message.buildNumber > 176014) {
+		return;
+	}
 
 	if (!prefs.shareGamesWithVS) {
 		return;
