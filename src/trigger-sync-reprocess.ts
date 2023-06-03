@@ -9,14 +9,14 @@ const sns = new Sns();
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
 	const mysql = await getConnection();
-	const startId = 304424215;
-	const endId = 305745345;
-	const buildNumber = 165029;
+	const startId = 354436513;
+	const endId = 354998313;
+	const buildNumber = 175913;
 	const query = `
 		SELECT * FROM replay_summary
 		where gameMode = 'ranked'
 		and playerRank is not null
-		and id > ${startId}
+		and id >= ${startId}
 		and id < ${endId}
 		and buildNumber >= ${buildNumber}
 		order by id asc;
@@ -29,7 +29,7 @@ export default async (event): Promise<any> => {
 	const chunks = chunk(results, 200);
 	for (const chunk of chunks) {
 		// console.log('sending chunk');
-		await Promise.all(chunk.map(reviewToNotify => sns.notifySyncReprocess(reviewToNotify)));
+		await Promise.all(chunk.map((reviewToNotify) => sns.notifySyncReprocess(reviewToNotify)));
 	}
 
 	return { statusCode: 200, body: 'ok' };
