@@ -14,9 +14,10 @@ export const entities = {
 
 // While we don't use the metric, the entity info that is populated is useful for other extractors
 const parser = (structure: ParsingStructure) => {
-	return element => {
+	return (element) => {
 		if (element.tag === 'FullEntity') {
 			structure.entities[element.get('id')] = {
+				entityId: parseInt(element.get('id')),
 				cardId: element.get('cardID'),
 				controller: parseInt(element.find(`.Tag[@tag='${GameTag.CONTROLLER}']`)?.get('value') || '-1'),
 				zone: parseInt(element.find(`.Tag[@tag='${GameTag.ZONE}']`)?.get('value') || '-1'),
@@ -32,6 +33,28 @@ const parser = (structure: ParsingStructure) => {
 				reborn: parseInt(element.find(`.Tag[@tag='${GameTag.HEALTH}']`)?.get('value') || '0') === 1,
 				creatorEntityId: parseInt(element.find(`.Tag[@tag='${GameTag.CREATOR}']`)?.get('value') || '0'),
 			};
+		}
+		if (element.tag === 'ShowEntity') {
+			structure.entities[element.get('entity')] = {
+				entityId: parseInt(element.get('entity')),
+				cardId: element.get('cardID'),
+				controller: parseInt(element.find(`.Tag[@tag='${GameTag.CONTROLLER}']`)?.get('value') || '-1'),
+				zone: parseInt(element.find(`.Tag[@tag='${GameTag.ZONE}']`)?.get('value') || '-1'),
+				zonePosition: parseInt(element.find(`.Tag[@tag='${GameTag.ZONE_POSITION}']`)?.get('value') || '-1'),
+				cardType: parseInt(element.find(`.Tag[@tag='${GameTag.CARDTYPE}']`)?.get('value') || '-1'),
+				tribe: parseInt(element.find(`.Tag[@tag='${GameTag.CARDRACE}']`)?.get('value') || '-1'),
+				atk: parseInt(element.find(`.Tag[@tag='${GameTag.ATK}']`)?.get('value') || '0'),
+				health: parseInt(element.find(`.Tag[@tag='${GameTag.HEALTH}']`)?.get('value') || '0'),
+				divineShield:
+					parseInt(element.find(`.Tag[@tag='${GameTag.DIVINE_SHIELD}']`)?.get('value') || '0') === 1,
+				poisonous: parseInt(element.find(`.Tag[@tag='${GameTag.POISONOUS}']`)?.get('value') || '0') === 1,
+				taunt: parseInt(element.find(`.Tag[@tag='${GameTag.TAUNT}']`)?.get('value') || '0') === 1,
+				reborn: parseInt(element.find(`.Tag[@tag='${GameTag.HEALTH}']`)?.get('value') || '0') === 1,
+				creatorEntityId: parseInt(element.find(`.Tag[@tag='${GameTag.CREATOR}']`)?.get('value') || '0'),
+			};
+			if (element.get('id') == '17') {
+				console.debug('show entity', element);
+			}
 		}
 		if (structure.entities[element.get('entity')]) {
 			if (parseInt(element.get('tag')) === GameTag.CONTROLLER) {
@@ -73,10 +96,10 @@ const populate = (replay: Replay, structure: ParsingStructure, emitter: (eventNa
 		}
 		const playerEntitiesOnBoard = Object.values(structure.entities)
 			// .map(entity => entity as any)
-			.filter(entity => entity.controller === replay.mainPlayerId)
-			.filter(entity => entity.zone === Zone.PLAY)
-			.filter(entity => entity.cardType === CardType.MINION)
-			.map(entity => ({
+			.filter((entity) => entity.controller === replay.mainPlayerId)
+			.filter((entity) => entity.zone === Zone.PLAY)
+			.filter((entity) => entity.cardType === CardType.MINION)
+			.map((entity) => ({
 				cardId: entity.cardId,
 				tribe: entity.tribe === -1 ? Race[Race.BLANK] : Race[entity.tribe],
 				attack: entity.atk,
@@ -90,11 +113,11 @@ const populate = (replay: Replay, structure: ParsingStructure, emitter: (eventNa
 				megaWindfury: hasMegaWindfury(entity.cardId),
 			}));
 		const opponentEntitiesOnBoard = Object.values(structure.entities)
-			.map(entity => entity as any)
-			.filter(entity => entity.controller !== replay.mainPlayerId)
-			.filter(entity => entity.zone === Zone.PLAY)
-			.filter(entity => entity.cardType === CardType.MINION)
-			.map(entity => ({
+			.map((entity) => entity as any)
+			.filter((entity) => entity.controller !== replay.mainPlayerId)
+			.filter((entity) => entity.zone === Zone.PLAY)
+			.filter((entity) => entity.cardType === CardType.MINION)
+			.map((entity) => ({
 				cardId: entity.cardId,
 				tribe: entity.tribe === -1 ? Race[Race.BLANK] : Race[entity.tribe],
 				attack: entity.atk,

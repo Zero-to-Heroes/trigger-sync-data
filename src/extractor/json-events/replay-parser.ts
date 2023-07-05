@@ -1,41 +1,49 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
-import { CardType, GameTag, Step } from '@firestone-hs/reference-data';
+import { GameTag, Step } from '@firestone-hs/reference-data';
 import { Element } from 'elementtree';
 import { EventEmitter } from 'events';
-import { battleResult } from './parsers/battle-result';
+import { EventName } from './json-event';
 import { entities } from './parsers/entities';
-import { darkmoonPrizes } from './parsers/prizes-played';
 import { ParsingStructure } from './parsing-structure';
 
+export interface ParserFunction {
+	parser?: (structure: ParsingStructure) => void;
+	endOfTurn?: (
+		replay: Replay,
+		structure: ParsingStructure,
+		emitter: (eventName: EventName, event: any) => void,
+	) => (currentTurn: number, turnChangeElement: Element) => void;
+}
+
 export class ReplayParser extends EventEmitter {
-	constructor(private readonly replay: Replay) {
+	constructor(private readonly replay: Replay, private readonly parseFunctions: readonly ParserFunction[]) {
 		super();
 	}
 
 	public parse() {
 		const opponentPlayerElement = this.replay.replay
 			.findall('.//Player')
-			.find(player => player.get('isMainPlayer') === 'false');
+			.find((player) => player.get('isMainPlayer') === 'false');
 		const opponentPlayerEntityId = opponentPlayerElement.get('id');
 		const structure: ParsingStructure = {
 			currentTurn: 0,
 			entities: {},
 		};
 
-		const playerEntities = this.replay.replay
-			.findall(`.//FullEntity`)
-			.filter(fullEntity => fullEntity.find(`.Tag[@tag='${GameTag.CARDTYPE}'][@value='${CardType.HERO}']`))
-			.filter(fullEntity => {
-				const controllerId = parseInt(fullEntity.find(`.Tag[@tag='${GameTag.CONTROLLER}']`).get('value'));
-				return controllerId === this.replay.mainPlayerId || controllerId === this.replay.opponentPlayerId;
-			})
-			.filter(
-				fullEntity =>
-					['TB_BaconShop_HERO_PH', 'TB_BaconShop_HERO_KelThuzad', 'TB_BaconShopBob'].indexOf(
-						fullEntity.get('cardID'),
-					) === -1,
-			);
+		// const playerEntities = this.replay.replay
+		// 	.findall(`.//FullEntity`)
+		// 	.filter(fullEntity => fullEntity.find(`.Tag[@tag='${GameTag.CARDTYPE}'][@value='${CardType.HERO}']`))
+		// 	.filter(fullEntity => {
+		// 		const controllerId = parseInt(fullEntity.find(`.Tag[@tag='${GameTag.CONTROLLER}']`).get('value'));
+		// 		return controllerId === this.replay.mainPlayerId || controllerId === this.replay.opponentPlayerId;
+		// 	})
+		// 	.filter(
+		// 		fullEntity =>
+		// 			['TB_BaconShop_HERO_PH', 'TB_BaconShop_HERO_KelThuzad', 'TB_BaconShopBob'].indexOf(
+		// 				fullEntity.get('cardID'),
+		// 			) === -1,
+		// 	);
 
 		parseElement(
 			this.replay.replay.getroot(),
@@ -45,17 +53,23 @@ export class ReplayParser extends EventEmitter {
 			{ currentTurn: 0 },
 			[
 				entities.parser(structure),
-				battleResult.parser(this.replay, structure, (eventName: string, event: any) => {
-					this.emit(eventName, event);
-				}),
-				darkmoonPrizes.parser(this.replay, structure, (eventName: string, event: any) => {
-					this.emit(eventName, event);
-				}),
+				...(this.parseFunctions ?? [])
+					.map((fn) => fn.parser)
+					.filter((fn) => !!fn)
+					.map((fn) => fn(structure)),
 			],
 			[
 				entities.endOfTurn(this.replay, structure, (eventName: string, event: any) => {
 					this.emit(eventName, event);
 				}),
+				...(this.parseFunctions ?? [])
+					.map((fn) => fn.endOfTurn)
+					.filter((fn) => !!fn)
+					.map((fn) =>
+						fn(this.replay, structure, (eventName: string, event: any) => {
+							this.emit(eventName, event);
+						}),
+					),
 			],
 		);
 	}
@@ -70,16 +84,18 @@ const parseElement = (
 	parseFunctions,
 	endOfTurnFunctions,
 ) => {
-	parseFunctions.forEach(parseFunction => parseFunction(element));
+	parseFunctions.forEach((parseFunction) => parseFunction(element));
 	if (element.tag === 'TagChange') {
 		if (
-			parseInt(element.get('tag')) === GameTag.NEXT_STEP &&
-			parseInt(element.get('value')) === Step.MAIN_START_TRIGGERS
+			parseInt(element.get('entity')) === 1 &&
+			parseInt(element.get('tag')) === GameTag.STEP &&
+			(parseInt(element.get('value')) === Step.BEGIN_MULLIGAN ||
+				parseInt(element.get('value')) === Step.MAIN_START)
 		) {
-			if (parent && parent.get('entity') === opponentPlayerEntityId) {
-				endOfTurnFunctions.forEach(populateFunction => populateFunction(turnCountWrapper.currentTurn, element));
-				turnCountWrapper.currentTurn++;
-			}
+			// console.debug('new turn', turnCountWrapper.currentTurn, element.get('tag'), element.get('value'));
+			endOfTurnFunctions.forEach((populateFunction) => populateFunction(turnCountWrapper.currentTurn, element));
+			turnCountWrapper.currentTurn =
+				parseInt(element.get('value')) === Step.BEGIN_MULLIGAN ? 0 : turnCountWrapper.currentTurn + 1;
 		}
 	}
 

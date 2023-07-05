@@ -1,48 +1,39 @@
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import { AllCardsService } from '@firestone-hs/reference-data';
 import { JsonEvent } from '../src/extractor/json-events/json-event';
+import { cardsInHand } from '../src/extractor/json-events/parsers/cards-in-hand-parser';
 import { ReplayParser } from '../src/extractor/json-events/replay-parser';
 import { replayString } from './replay.xml';
 
-const runTest = () => {
-	const replay: Replay = parseHsReplayString(replayString, null);
-	const parser = new ReplayParser(replay);
+const runTest = async () => {
+	const cards = new AllCardsService();
+	await cards.initializeCardsDb();
+
+	const replay: Replay = parseHsReplayString(replayString, cards);
+	const parser = new ReplayParser(replay, [cardsInHand]);
 	const events: JsonEvent[] = [];
-	parser.on('bgsBattleStart', event => {
-		events.push({
-			name: 'bgsBattleStart',
-			time: event.time,
-			data: {
-				player: {
-					board: event.playerBoard,
-				},
-				opponent: {
-					board: event.opponentBoard,
-				},
-			},
-		} as JsonEvent);
-	});
-	parser.on('bgsBattleResult', event => {
-		events.push({
-			name: 'bgsBattleResult',
-			time: event.time,
-			data: {
-				player: event.player,
-				opponent: event.opponent,
-				result: event.result,
-			},
-		} as JsonEvent);
-	});
-	parser.on('bgsPrizePicked', event => {
-		events.push({
-			name: 'bgsPrizePicked',
-			time: event.time,
-			data: {
-				cardId: event.cardId,
-			},
-		} as JsonEvent);
+	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
+	let cardsBeforeMulligan: string[] = [];
+	parser.on('cards-in-hand', (event) => {
+		if (cardsBeforeMulligan?.length === 0) {
+			cardsBeforeMulligan = event.cardsInHand;
+		} else {
+			cardsAfterMulligan = event.cardsInHand.map((cardId) => ({
+				cardId: cardId,
+				kept: cardsBeforeMulligan.includes(cardId),
+			}));
+		}
+		// console.debug('getting event', event);
+		// events.push({
+		// 	name: 'cards-in-hand',
+		// 	time: event.time,
+		// 	turn: event.turn,
+		// 	data: event.cardsInHand,
+		// } as JsonEvent);
 	});
 	parser.parse();
-	// console.log(events);
+
+	console.log(cardsAfterMulligan);
 };
 
 runTest();

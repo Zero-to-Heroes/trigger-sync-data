@@ -6,6 +6,14 @@ import axios from 'axios';
 import { SecretInfo, getSecret } from '../db/rds';
 import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
+import { cardsInHand } from './json-events/parsers/cards-in-hand-parser';
+import { ReplayParser } from './json-events/replay-parser';
+import { extractPlayedCards } from './played-card-extractor';
+
+const secretRequest: GetSecretValueRequest = {
+	SecretId: 'd0nkey',
+};
+let secret: SecretInfo;
 
 export const toD0nkey = async (
 	message: ReviewMessage,
@@ -33,6 +41,22 @@ export const toD0nkey = async (
 
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
+
+	const parser = new ReplayParser(replay, [cardsInHand]);
+	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
+	let cardsBeforeMulligan: string[] = [];
+	parser.on('cards-in-hand', (event) => {
+		if (cardsBeforeMulligan?.length === 0) {
+			cardsBeforeMulligan = event.cardsInHand;
+		} else {
+			cardsAfterMulligan = event.cardsInHand.map((cardId) => ({
+				cardId: cardId,
+				kept: cardsBeforeMulligan.includes(cardId),
+			}));
+		}
+	});
+	parser.parse();
+
 	const stats = {
 		player: {
 			battleTag: message.playerName,
@@ -40,6 +64,10 @@ export const toD0nkey = async (
 			rank: playerRank,
 			legendRank: playerLegendRank,
 			deckcode: message.playerDecklist,
+			cards: extractPlayedCards(replay, message, replay.mainPlayerId),
+			// cards in hand after mulligan
+			cardsAfterMulligan: cardsAfterMulligan,
+			// cards drawn from deck
 		},
 		opposing_player: {
 			battleTag: message.opponentName,
@@ -47,22 +75,19 @@ export const toD0nkey = async (
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
 			deckcode: null,
+			cards: extractPlayedCards(replay, message, replay.opponentPlayerId),
 		},
 		game_id: message.reviewId,
 		game_type: gameType,
 		format: formatType,
 		result: message.result.toUpperCase(),
 		region: BnetRegion[replay.region?.toString()]?.toString(),
+		source: 'firestone',
+		source_version: message.appVersion,
 	};
 	try {
-		const secretRequest: GetSecretValueRequest = {
-			SecretId: 'd0nkey',
-		};
-		const secret: SecretInfo = await getSecret(secretRequest);
-		// console.log('sending auth', {
-		// 	username: secret.username,
-		// 	password: secret.password,
-		// });
+		secret = secret ?? (await getSecret(secretRequest));
+		// TODO: retrieve the archetype as return of the call
 		await axios.put('https://www.d0nkey.top/api/dt/game', stats, {
 			auth: {
 				username: secret.username,
@@ -119,6 +144,8 @@ const getFormatType = (gameFormat: GameFormatString): string => {
 			return GameFormat.FT_WILD.toString();
 		case 'classic':
 			return GameFormat.FT_CLASSIC.toString();
+		case 'twist':
+			return GameFormat.FT_TWIST.toString();
 		default:
 			return GameFormat.FT_UNKNOWN.toString();
 	}

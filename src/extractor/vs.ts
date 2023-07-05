@@ -135,6 +135,8 @@ const getFormatType = (gameFormat: GameFormatString): string => {
 			return GameFormat.FT_WILD.toString();
 		case 'classic':
 			return GameFormat.FT_CLASSIC.toString();
+		case 'twist':
+			return GameFormat.FT_TWIST.toString();
 		default:
 			return GameFormat.FT_UNKNOWN.toString();
 	}

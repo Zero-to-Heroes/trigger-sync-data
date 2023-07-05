@@ -28,4 +28,6 @@ export interface ReviewMessage {
 	readonly replayKey: string;
 	readonly availableTribes: readonly Race[];
 	readonly bgsHasPrizes: boolean;
+	readonly application: string;
+	readonly appVersion: string;
 }

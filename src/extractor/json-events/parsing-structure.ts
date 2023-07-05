@@ -3,6 +3,7 @@ export interface ParsingStructure {
 
 	entities: {
 		[entityId: string]: {
+			entityId: number;
 			cardId: string;
 			tribe: number;
 			controller: number;

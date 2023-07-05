@@ -6,19 +6,23 @@ import { ReviewMessage } from '../review-message';
 
 const validZones = [Zone.PLAY, Zone.GRAVEYARD, Zone.REMOVEDFROMGAME, Zone.SETASIDE];
 
+// export const extractHandAfterMulligan = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
+
+// }
+
 export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
 	const idControllerMapping = buildIdToControllerMapping(replay);
 	const entitiesWithCards = replay.replay
 		.findall(`.//*[@cardID]`)
-		.filter(element => element.tag !== 'ChangeEntity')
-		.filter(entity => isEntityValid(entity));
+		.filter((element) => element.tag !== 'ChangeEntity')
+		.filter((entity) => isEntityValid(entity));
 
 	// Because cards can change controllers during the game, we need to only consider the
 	// first time we see them
 	const uniqueEntities = [];
 	for (const entity of entitiesWithCards) {
 		// Don't add duplicate entities
-		if (uniqueEntities.map(entity => getId(entity)).indexOf(getId(entity)) !== -1) {
+		if (uniqueEntities.map((entity) => getId(entity)).indexOf(getId(entity)) !== -1) {
 			continue;
 		}
 		// Only add cards
@@ -27,18 +31,18 @@ export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playe
 
 	const validZoneChangeTags = replay.replay
 		.findall(`.//TagChange[@tag='${GameTag.ZONE}']`)
-		.filter(tag => validZones.indexOf(parseInt(tag.get('value'))) !== -1);
-	const entityIdsWithValidZoneChanges = validZoneChangeTags.map(tagChange => parseInt(tagChange.get('entity')));
+		.filter((tag) => validZones.indexOf(parseInt(tag.get('value'))) !== -1);
+	const entityIdsWithValidZoneChanges = validZoneChangeTags.map((tagChange) => parseInt(tagChange.get('entity')));
 
 	const validEntities = uniqueEntities.filter(
-		entity =>
+		(entity) =>
 			validZones.indexOf(getId(entity)) !== -1 || entityIdsWithValidZoneChanges.indexOf(getId(entity)) !== -1,
 	);
 
 	const playerEntities: Element[] = validEntities.filter(
-		entity => idControllerMapping[getId(entity)] && idControllerMapping[getId(entity)] === playerId,
+		(entity) => idControllerMapping[getId(entity)] && idControllerMapping[getId(entity)] === playerId,
 	);
-	const playedCards = playerEntities.map(entity => getCardId(entity));
+	const playedCards = playerEntities.map((entity) => getCardId(entity));
 	return playedCards;
 };
 
