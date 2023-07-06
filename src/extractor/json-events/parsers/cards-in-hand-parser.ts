@@ -20,18 +20,6 @@ const populate = (replay: Replay, structure: ParsingStructure, emitter: (eventNa
 			.filter((entity) => entity.controller === replay.mainPlayerId)
 			.filter((entity) => entity.zone === Zone.HAND)
 			.map((entity) => entity.cardId);
-		// console.debug(
-		// 	'mulligan',
-		// 	currentTurn,
-		// 	playerEntitiesInHand,
-		// 	Object.values(structure.entities).map((entity) => ({
-		// 		cardId: entity.cardId,
-		// 		entityId: entity.entityId,
-		// 		zone: entity.zone,
-		// 		controller: entity.controller,
-		// 	})),
-		// );
-		// structure.boardOverTurn = structure.boardOverTurn.set(currentTurn, playerEntitiesOnBoard);
 		emitter('cards-in-hand', {
 			time: toTimestamp(turnChangeElement.get('ts')),
 			turn: structure.currentTurn,

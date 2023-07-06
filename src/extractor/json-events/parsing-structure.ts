@@ -17,6 +17,9 @@ export interface ParsingStructure {
 			taunt: boolean;
 			reborn: boolean;
 			creatorEntityId: number;
+			creatorDBId: number;
+			topDeck: boolean;
+			transformedFromCard: number;
 		};
 	};
 }

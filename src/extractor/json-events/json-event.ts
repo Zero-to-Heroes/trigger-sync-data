@@ -4,4 +4,4 @@ export interface JsonEvent {
 	readonly data: any;
 }
 
-export type EventName = 'bgsPrizePicked' | 'bgsBattleResult' | 'bgsBattleStart' | 'cards-in-hand';
+export type EventName = 'bgsPrizePicked' | 'bgsBattleResult' | 'bgsBattleStart' | 'cards-in-hand' | 'card-draw';

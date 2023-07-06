@@ -1,6 +1,6 @@
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { AllCardsService } from '@firestone-hs/reference-data';
-import { JsonEvent } from '../src/extractor/json-events/json-event';
+import { cardDrawn } from '../src/extractor/json-events/parsers/cards-draw-parser';
 import { cardsInHand } from '../src/extractor/json-events/parsers/cards-in-hand-parser';
 import { ReplayParser } from '../src/extractor/json-events/replay-parser';
 import { replayString } from './replay.xml';
@@ -10,8 +10,7 @@ const runTest = async () => {
 	await cards.initializeCardsDb();
 
 	const replay: Replay = parseHsReplayString(replayString, cards);
-	const parser = new ReplayParser(replay, [cardsInHand]);
-	const events: JsonEvent[] = [];
+	const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
 	let cardsBeforeMulligan: string[] = [];
 	parser.on('cards-in-hand', (event) => {
@@ -23,17 +22,18 @@ const runTest = async () => {
 				kept: cardsBeforeMulligan.includes(cardId),
 			}));
 		}
-		// console.debug('getting event', event);
-		// events.push({
-		// 	name: 'cards-in-hand',
-		// 	time: event.time,
-		// 	turn: event.turn,
-		// 	data: event.cardsInHand,
-		// } as JsonEvent);
+	});
+	let cardsDrawn: any[] = [];
+	parser.on('card-draw', (event) => {
+		// console.debug('card drawn', event.cardId);
+		cardsDrawn = [...cardsDrawn, { cardId: event.cardId, turn: event.turn }];
 	});
 	parser.parse();
 
 	console.log(cardsAfterMulligan);
+	console.log(cardsDrawn);
+	console.log(cardsAfterMulligan.map((c) => cards.getCard(c.cardId).name));
+	console.log(cardsDrawn.map((c) => ({ turn: c.turn, cardName: cards.getCard(c.cardId).name })));
 };
 
 runTest();

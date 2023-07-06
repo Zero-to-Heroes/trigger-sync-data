@@ -54,7 +54,7 @@ const getId = (entity: Element): number => {
 	return parseInt(entity.get('id') || entity.get('entity'));
 };
 
-const isEntityValid = (entity: Element): boolean => {
+export const isEntityValid = (entity: Element): boolean => {
 	return (
 		(!entity.find(`.Tag[@tag='${GameTag.TOPDECK}']`) ||
 			entity.find(`.Tag[@tag='${GameTag.TOPDECK}']`).get('value') === '0') &&

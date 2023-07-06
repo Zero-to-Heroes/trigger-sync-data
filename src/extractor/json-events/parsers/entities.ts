@@ -32,6 +32,12 @@ const parser = (structure: ParsingStructure) => {
 				taunt: parseInt(element.find(`.Tag[@tag='${GameTag.TAUNT}']`)?.get('value') || '0') === 1,
 				reborn: parseInt(element.find(`.Tag[@tag='${GameTag.HEALTH}']`)?.get('value') || '0') === 1,
 				creatorEntityId: parseInt(element.find(`.Tag[@tag='${GameTag.CREATOR}']`)?.get('value') || '0'),
+				creatorDBId: parseInt(element.find(`.Tag[@tag='${GameTag.CREATOR_DBID}']`)?.get('value') || '0'),
+				topDeck: parseInt(element.find(`.Tag[@tag='${GameTag.TOPDECK}']`)?.get('value') || '0') === 1,
+				transformedFromCard: parseInt(
+					element.find(`.Tag[@tag='${GameTag.TRANSFORMED_FROM_CARD}']`)?.get('value') || '0',
+				),
+				// revealed: parseInt(element.find(`.Tag[@tag='${GameTag.REVEALED}']`)?.get('value') || '0'),
 			};
 		}
 		if (element.tag === 'ShowEntity') {
@@ -51,6 +57,11 @@ const parser = (structure: ParsingStructure) => {
 				taunt: parseInt(element.find(`.Tag[@tag='${GameTag.TAUNT}']`)?.get('value') || '0') === 1,
 				reborn: parseInt(element.find(`.Tag[@tag='${GameTag.HEALTH}']`)?.get('value') || '0') === 1,
 				creatorEntityId: parseInt(element.find(`.Tag[@tag='${GameTag.CREATOR}']`)?.get('value') || '0'),
+				creatorDBId: parseInt(element.find(`.Tag[@tag='${GameTag.CREATOR_DBID}']`)?.get('value') || '0'),
+				topDeck: parseInt(element.find(`.Tag[@tag='${GameTag.TOPDECK}']`)?.get('value') || '0') === 1,
+				transformedFromCard: parseInt(
+					element.find(`.Tag[@tag='${GameTag.TRANSFORMED_FROM_CARD}']`)?.get('value') || '0',
+				),
 			};
 			if (element.get('id') == '17') {
 				console.debug('show entity', element);
@@ -84,6 +95,18 @@ const parser = (structure: ParsingStructure) => {
 			}
 			if (parseInt(element.get('tag')) === GameTag.REBORN) {
 				structure.entities[element.get('entity')].reborn = parseInt(element.get('value')) === 1;
+			}
+			if (parseInt(element.get('tag')) === GameTag.CREATOR) {
+				structure.entities[element.get('entity')].creatorEntityId = parseInt(element.get('value'));
+			}
+			if (parseInt(element.get('tag')) === GameTag.CREATOR_DBID) {
+				structure.entities[element.get('entity')].creatorDBId = parseInt(element.get('value'));
+			}
+			if (parseInt(element.get('tag')) === GameTag.TOPDECK) {
+				structure.entities[element.get('entity')].topDeck = parseInt(element.get('value')) === 1;
+			}
+			if (parseInt(element.get('tag')) === GameTag.TRANSFORMED_FROM_CARD) {
+				structure.entities[element.get('entity')].transformedFromCard = parseInt(element.get('value'));
 			}
 		}
 	};

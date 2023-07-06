@@ -8,7 +8,11 @@ import { entities } from './parsers/entities';
 import { ParsingStructure } from './parsing-structure';
 
 export interface ParserFunction {
-	parser?: (structure: ParsingStructure) => void;
+	parser?: (
+		replay: Replay,
+		structure: ParsingStructure,
+		emitter: (eventName: EventName, event: any) => void,
+	) => (element: Element) => void;
 	endOfTurn?: (
 		replay: Replay,
 		structure: ParsingStructure,
@@ -50,13 +54,17 @@ export class ReplayParser extends EventEmitter {
 			this.replay.mainPlayerId,
 			opponentPlayerEntityId,
 			null,
-			{ currentTurn: 0 },
+			structure,
 			[
-				entities.parser(structure),
 				...(this.parseFunctions ?? [])
 					.map((fn) => fn.parser)
 					.filter((fn) => !!fn)
-					.map((fn) => fn(structure)),
+					.map((fn) =>
+						fn(this.replay, structure, (eventName: string, event: any) => {
+							this.emit(eventName, event);
+						}),
+					),
+				entities.parser(structure),
 			],
 			[
 				entities.endOfTurn(this.replay, structure, (eventName: string, event: any) => {
@@ -92,7 +100,7 @@ const parseElement = (
 			(parseInt(element.get('value')) === Step.BEGIN_MULLIGAN ||
 				parseInt(element.get('value')) === Step.MAIN_START)
 		) {
-			// console.debug('new turn', turnCountWrapper.currentTurn, element.get('tag'), element.get('value'));
+			console.debug('new turn', turnCountWrapper.currentTurn, element.get('tag'), element.get('value'));
 			endOfTurnFunctions.forEach((populateFunction) => populateFunction(turnCountWrapper.currentTurn, element));
 			turnCountWrapper.currentTurn =
 				parseInt(element.get('value')) === Step.BEGIN_MULLIGAN ? 0 : turnCountWrapper.currentTurn + 1;

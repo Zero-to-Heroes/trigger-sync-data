@@ -6,6 +6,7 @@ import axios from 'axios';
 import { SecretInfo, getSecret } from '../db/rds';
 import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
+import { cardDrawn } from './json-events/parsers/cards-draw-parser';
 import { cardsInHand } from './json-events/parsers/cards-in-hand-parser';
 import { ReplayParser } from './json-events/replay-parser';
 import { extractPlayedCards } from './played-card-extractor';
@@ -42,7 +43,7 @@ export const toD0nkey = async (
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 
-	const parser = new ReplayParser(replay, [cardsInHand]);
+	const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
 	let cardsBeforeMulligan: string[] = [];
 	parser.on('cards-in-hand', (event) => {
@@ -55,6 +56,11 @@ export const toD0nkey = async (
 			}));
 		}
 	});
+	let cardsDrawn: any[] = [];
+	parser.on('card-draw', (event) => {
+		// console.debug('card drawn', event.cardId);
+		cardsDrawn = [...cardsDrawn, { cardId: event.cardId, turn: event.turn }];
+	});
 	parser.parse();
 
 	const stats = {
@@ -65,9 +71,8 @@ export const toD0nkey = async (
 			legendRank: playerLegendRank,
 			deckcode: message.playerDecklist,
 			cards: extractPlayedCards(replay, message, replay.mainPlayerId),
-			// cards in hand after mulligan
-			cardsAfterMulligan: cardsAfterMulligan,
-			// cards drawn from deck
+			cardsInHandAfterMulligan: cardsAfterMulligan,
+			cardsDrawnFromInitialDeck: cardsDrawn,
 		},
 		opposing_player: {
 			battleTag: message.opponentName,
