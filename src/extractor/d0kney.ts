@@ -6,6 +6,7 @@ import axios from 'axios';
 import { SecretInfo, getSecret } from '../db/rds';
 import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
+import { allCards } from '../stats-builder';
 import { cardDrawn } from './json-events/parsers/cards-draw-parser';
 import { cardsInHand } from './json-events/parsers/cards-in-hand-parser';
 import { ReplayParser } from './json-events/replay-parser';
@@ -52,6 +53,7 @@ export const toD0nkey = async (
 		} else {
 			cardsAfterMulligan = event.cardsInHand.map((cardId) => ({
 				cardId: cardId,
+				cardDbfId: allCards.getCard(cardId)?.dbfId,
 				kept: cardsBeforeMulligan.includes(cardId),
 			}));
 		}
@@ -59,7 +61,10 @@ export const toD0nkey = async (
 	let cardsDrawn: any[] = [];
 	parser.on('card-draw', (event) => {
 		// console.debug('card drawn', event.cardId);
-		cardsDrawn = [...cardsDrawn, { cardId: event.cardId, turn: event.turn }];
+		cardsDrawn = [
+			...cardsDrawn,
+			{ cardId: event.cardId, cardDbfId: allCards.getCard(event.cardId)?.dbfId, turn: event.turn },
+		];
 	});
 	parser.parse();
 

@@ -10,12 +10,12 @@ import { Preferences } from './preferences';
 import { ReviewMessage } from './review-message';
 
 const s3 = new S3();
-const allCards = new AllCardsService();
+export const allCards = new AllCardsService();
 
 export class StatsBuilder {
 	public async buildStats(messages: readonly ReviewMessage[], verbose = false): Promise<void> {
 		await allCards.initializeCardsDb();
-		await Promise.all(messages.map(msg => this.buildStat(msg, verbose)));
+		await Promise.all(messages.map((msg) => this.buildStat(msg, verbose)));
 	}
 
 	private async buildStat(message: ReviewMessage, verbose = false): Promise<void> {
