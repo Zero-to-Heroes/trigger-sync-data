@@ -31,10 +31,10 @@ const handleCardDraw = (
 		parseInt(element.get('tag')) === GameTag.ZONE && parseInt(element.get('value')) === Zone.HAND;
 		if (isTagChangeToHand || isShowEntityInHand) {
 			const entity = structure.entities[element.get('entity')];
-			if (entity.controller !== replay.mainPlayerId) {
+			if (entity?.controller !== replay.mainPlayerId) {
 				return;
 			}
-			console.debug('handling card draw', entity.entityId, entity.cardId, entity.zone, entity.controller);
+			// console.debug('handling card draw', entity.entityId, entity.cardId, entity.zone, entity.controller);
 
 			const previousZone = entity.zone;
 			if (previousZone !== Zone.DECK) {

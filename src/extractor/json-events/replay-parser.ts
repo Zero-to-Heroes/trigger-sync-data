@@ -100,7 +100,7 @@ const parseElement = (
 			(parseInt(element.get('value')) === Step.BEGIN_MULLIGAN ||
 				parseInt(element.get('value')) === Step.MAIN_START)
 		) {
-			console.debug('new turn', turnCountWrapper.currentTurn, element.get('tag'), element.get('value'));
+			// console.debug('new turn', turnCountWrapper.currentTurn, element.get('tag'), element.get('value'));
 			endOfTurnFunctions.forEach((populateFunction) => populateFunction(turnCountWrapper.currentTurn, element));
 			turnCountWrapper.currentTurn =
 				parseInt(element.get('value')) === Step.BEGIN_MULLIGAN ? 0 : turnCountWrapper.currentTurn + 1;
