@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import { Sns } from '@firestone-hs/aws-lambda-utils';
 import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import { GetSecretValueRequest } from 'aws-sdk/clients/secretsmanager';
@@ -16,6 +17,8 @@ const secretRequest: GetSecretValueRequest = {
 	SecretId: 'd0nkey',
 };
 let secret: SecretInfo;
+
+const sns = new Sns();
 
 export const toD0nkey = async (
 	message: ReviewMessage,
@@ -98,12 +101,23 @@ export const toD0nkey = async (
 	try {
 		secret = secret ?? (await getSecret(secretRequest));
 		// TODO: retrieve the archetype as return of the call
-		await axios.put('https://www.d0nkey.top/api/dt/game', stats, {
+		const reply = await axios.put('https://www.d0nkey.top/api/dt/game', stats, {
 			auth: {
 				username: secret.username,
 				password: secret.password,
 			},
 		});
+		// console.debug('sent request to d0nkey', reply, reply?.status, reply?.statusText, reply?.data);
+		const d0nkeyData: D0nkeyData = reply?.data;
+		if (d0nkeyData?.player_deck?.name?.length > 0) {
+			sns.notify(
+				process.env.ARCHETYPE_ASSIGNED_TOPIC,
+				JSON.stringify({
+					...message,
+					archetype: d0nkeyData?.player_deck?.name,
+				}),
+			);
+		}
 	} catch (e) {
 		console.error('Could not send request to d0nkey', stats);
 	}
@@ -190,5 +204,14 @@ export interface VSStat {
 		rank: number;
 		legendRank: number;
 		going_first: boolean;
+	};
+}
+
+interface D0nkeyData {
+	player_deck: {
+		// Name has XL and rune shorthands, archetype doesn't, ie XL Control Priest vs Control Priest
+		name: string;
+		archetype: string;
+		deckcode: string;
 	};
 }

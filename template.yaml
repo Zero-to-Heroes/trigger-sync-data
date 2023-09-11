@@ -4,7 +4,18 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Sync some data with third parties
 
+Globals:
+    Function:
+        Environment:
+            Variables:
+                ARCHETYPE_ASSIGNED_TOPIC: !Ref ArchetypeAssignedSnsTopic
+
 Resources:
+    ArchetypeAssignedSnsTopic:
+        Type: AWS::SNS::Topic
+        Properties:
+            TopicName: 'archetype-assigned'
+            DisplayName: 'archetype-assigned'
     SyncStatsStatsQueue:
         Type: AWS::SQS::Queue
         Properties:
@@ -50,6 +61,7 @@ Resources:
                 - SecretsManagerReadWrite
                 - AmazonSESFullAccess
                 - AmazonSQSFullAccess
+                - AmazonSNSFullAccess
                 # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: process-sync-stats
