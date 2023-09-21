@@ -9,6 +9,7 @@ Globals:
         Environment:
             Variables:
                 ARCHETYPE_ASSIGNED_TOPIC: !Ref ArchetypeAssignedSnsTopic
+                REVIEW_REPUBLISHED_TOPIC: !Ref ReviewRepublishedSnsTopic
 
 Resources:
     ArchetypeAssignedSnsTopic:
@@ -16,6 +17,11 @@ Resources:
         Properties:
             TopicName: 'archetype-assigned'
             DisplayName: 'archetype-assigned'
+    ReviewRepublishedSnsTopic:
+        Type: AWS::SNS::Topic
+        Properties:
+            TopicName: 'review-republished'
+            DisplayName: 'review-republished'
     SyncStatsStatsQueue:
         Type: AWS::SQS::Queue
         Properties:
@@ -46,6 +52,37 @@ Resources:
             Protocol: SQS
             Endpoint: !GetAtt SyncStatsStatsQueue.Arn
             TopicArn: arn:aws:sns:us-west-2:478062583808:review-published
+            
+    SyncStatsReprocessQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: review-reprocess
+            VisibilityTimeout: 601
+    SyncStatsSqsReprocessQueuePolicy:
+        Type: AWS::SQS::QueuePolicy
+        Properties:
+            PolicyDocument:
+                Version: '2012-10-17'
+                Id: SyncStatsReprocessQueuePolicy
+                Statement:
+                    - Sid: Allow-SNS-SendMessage-SyncStatsReprocessQueue
+                      Effect: Allow
+                      Principal:
+                          AWS: '*'
+                      Action:
+                          - sqs:SendMessage
+                      Resource: !GetAtt SyncStatsReprocessQueue.Arn
+                      Condition:
+                          ArnEquals:
+                              aws:SourceArn: arn:aws:sns:us-west-2:478062583808:review-republished
+            Queues:
+                - !Ref SyncStatsReprocessQueue
+    SyncStatsReprocessSnsSubscription:
+        Type: AWS::SNS::Subscription
+        Properties:
+            Protocol: SQS
+            Endpoint: !GetAtt SyncStatsReprocessQueue.Arn
+            TopicArn: arn:aws:sns:us-west-2:478062583808:review-republished
 
     ProcessSyncStatsFunction:
         Type: AWS::Serverless::Function
@@ -99,15 +136,16 @@ Resources:
             ReservedConcurrentExecutions: 40
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
-                - AmazonSESFullAccess
                 - SecretsManagerReadWrite
-                - AmazonSNSReadOnlyAccess
+                - AmazonSESFullAccess
+                - AmazonSQSFullAccess
+                - AmazonSNSFullAccess
                 # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: sync-data-reprocess
             Events:
-                SQSReprocess:
+                SQSEvent:
                     Type: SQS
                     Properties:
-                        Queue: arn:aws:sqs:us-west-2:478062583808:review-reprocess
+                        Queue: !GetAtt SyncStatsReprocessQueue.Arn
                         BatchSize: 1

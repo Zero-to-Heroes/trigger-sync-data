@@ -2,7 +2,6 @@
 import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import axios from 'axios';
-import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
 import { extractPlayedCards } from './played-card-extractor';
 
@@ -10,14 +9,13 @@ export const extractViciousSyndicateStats = async (
 	message: ReviewMessage,
 	replay: Replay,
 	replayString: string,
-	prefs: Preferences,
 ): Promise<void> => {
 	// return;
-	if (+message.buildNumber > 185054) {
-		return;
-	}
+	// if (+message.buildNumber > 185054) {
+	// 	return;
+	// }
 
-	if (!prefs.shareGamesWithVS) {
+	if (!message.allowGameShare) {
 		return;
 	}
 

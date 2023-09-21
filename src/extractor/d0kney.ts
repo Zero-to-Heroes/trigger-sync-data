@@ -5,7 +5,6 @@ import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-h
 import { GetSecretValueRequest } from 'aws-sdk/clients/secretsmanager';
 import axios from 'axios';
 import { SecretInfo, getSecret } from '../db/rds';
-import { Preferences } from '../preferences';
 import { ReviewMessage } from '../review-message';
 import { allCards } from '../stats-builder';
 import { cardDrawn } from './json-events/parsers/cards-draw-parser';
@@ -20,13 +19,8 @@ let secret: SecretInfo;
 
 const sns = new Sns();
 
-export const toD0nkey = async (
-	message: ReviewMessage,
-	replay: Replay,
-	replayString: string,
-	prefs: Preferences,
-): Promise<void> => {
-	if (!prefs.d0nkeySync) {
+export const toD0nkey = async (message: ReviewMessage, replay: Replay, replayString: string): Promise<void> => {
+	if (!message.allowGameShare) {
 		return;
 	}
 

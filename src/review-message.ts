@@ -30,4 +30,5 @@ export interface ReviewMessage {
 	readonly bgsHasPrizes: boolean;
 	readonly application: string;
 	readonly appVersion: string;
+	readonly allowGameShare: boolean;
 }

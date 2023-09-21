@@ -17,6 +17,7 @@ export interface SecretInfo {
 	readonly username: string;
 	readonly password: string;
 	readonly host: string;
+	readonly hostReadOnly: string;
 	readonly port: number;
 	readonly dbClusterIdentifier: string;
 }
