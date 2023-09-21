@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { getConnection } from './db/rds';
+import { getConnectionReadOnly } from '@firestone-hs/aws-lambda-utils';
 import { Sns } from './sns';
 
 const sns = new Sns();
@@ -8,10 +8,10 @@ const sns = new Sns();
 // the more traditional callback-style handler.
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
-	const mysql = await getConnection();
-	const startId = 354436513;
-	const endId = 354998313;
-	const buildNumber = 175913;
+	const mysql = await getConnectionReadOnly();
+	const startId = 408162571;
+	const endId = 409087449;
+	const buildNumber = 185749;
 	const query = `
 		SELECT * FROM replay_summary
 		where gameMode = 'ranked'

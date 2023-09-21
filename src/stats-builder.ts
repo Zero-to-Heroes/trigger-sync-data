@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import { getConnectionReadOnly } from '@firestone-hs/aws-lambda-utils';
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { AllCardsService } from '@firestone-hs/reference-data';
 import SqlString from 'sqlstring';
-import { getConnection } from './db/rds';
 import { S3 } from './db/s3';
 import { toD0nkey } from './extractor/d0kney';
 import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
@@ -56,7 +56,7 @@ export class StatsBuilder {
 	}
 
 	private async loadPrefs(userId: string): Promise<Preferences> {
-		const mysql = await getConnection();
+		const mysql = await getConnectionReadOnly();
 		const query = `
 			SELECT prefs, lastUpdateDate FROM user_prefs
 			WHERE userId = ${SqlString.escape(userId)}
