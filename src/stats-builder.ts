@@ -31,6 +31,9 @@ export class StatsBuilder {
 		if (!['ranked'].includes(message.gameMode)) {
 			return;
 		}
+		if (!message.allowGameShare) {
+			return;
+		}
 
 		// if (parseInt(message.buildNumber) > 139719) {
 		// 	return;

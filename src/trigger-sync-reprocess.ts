@@ -6,8 +6,8 @@ import { SecretInfo, getSecret } from './db/rds';
 
 const sns = new Sns();
 
-const startId = 408162571;
-const end__Id = 409087449;
+const startId = 413950177;
+const end__Id = 413997010;
 const buildNumber = 185749;
 
 // This example demonstrates a NodeJS 8.10 async handler[1], however of course you could use
