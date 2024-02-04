@@ -88,13 +88,13 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: process-sync-stats.default
-            Runtime: nodejs16.x
+            Runtime: nodejs18.x
             CodeUri: ./dist/process-sync-stats
             Timeout: 60
             MemorySize: 384 
             ReservedConcurrentExecutions: 10
-            Layers:
-                - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
+            # Layers:
+            #     - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - SecretsManagerReadWrite
@@ -102,7 +102,7 @@ Resources:
                 - AmazonSQSFullAccess
                 - AmazonSNSFullAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: process-sync-stats
             Events:
@@ -114,13 +114,13 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: trigger-sync-reprocess.default
-            Runtime: nodejs16.x
+            Runtime: nodejs18.x
             Timeout: 900
             CodeUri: ./dist/trigger-sync-reprocess
             MemorySize: 2048
             ReservedConcurrentExecutions: 5
-            Layers:
-                - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
+            # Layers:
+            #     - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - AmazonSESFullAccess
@@ -128,20 +128,20 @@ Resources:
                 - SecretsManagerReadWrite
                 - AmazonSNSReadOnlyAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: trigger-sync-reprocess
     ReprocessStatsFunction:
         Type: AWS::Serverless::Function
         Properties:
             Handler: sync-data-reprocess.default
-            Runtime: nodejs16.x
+            Runtime: nodejs18.x
             Timeout: 10
             CodeUri: ./dist/sync-data-reprocess
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
             ReservedConcurrentExecutions: 40
-            Layers:
-                - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
+            # Layers:
+            #     - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - SecretsManagerReadWrite
@@ -149,7 +149,7 @@ Resources:
                 - AmazonSQSFullAccess
                 - AmazonSNSFullAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: sync-data-reprocess
             Events:
