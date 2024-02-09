@@ -80,7 +80,7 @@ export class StatsBuilder {
 }
 
 const loadMetaDataFile = async (fileKey: string): Promise<ReplayUploadMetadata | null> => {
-	const replayString = await s3.readZippedContent('com.zerotoheroes.batch', fileKey);
+	const replayString = !!fileKey?.length ? await s3.readZippedContent('com.zerotoheroes.batch', fileKey) : null;
 	let fullMetaData: ReplayUploadMetadata | null = null;
 	if (replayString?.startsWith('{')) {
 		const metadataStr = replayString;
