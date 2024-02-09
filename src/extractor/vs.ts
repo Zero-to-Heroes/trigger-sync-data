@@ -1,25 +1,22 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
+import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import axios from 'axios';
 import { ReviewMessage } from '../review-message';
 import { extractPlayedCards } from './played-card-extractor';
 
 export const extractViciousSyndicateStats = async (
 	message: ReviewMessage,
+	metadata: ReplayUploadMetadata,
 	replay: Replay,
-	replayString: string,
 ): Promise<void> => {
-	// return;
-	// if (+message.buildNumber > 185054) {
-	// 	return;
-	// }
-
+	const debug = message.userName === 'daedin';
 	if (!message.allowGameShare) {
 		return;
 	}
 
-	if (![GameType.GT_RANKED].includes(replay.gameType)) {
+	if (message.gameMode !== 'ranked') {
 		return;
 	}
 
@@ -38,35 +35,42 @@ export const extractViciousSyndicateStats = async (
 	const vsStats = {
 		game_id: message.reviewId,
 		timestamp: Date.now(),
-		game_duration_in_seconds: extractTotalDuration(replay),
+		game_duration_in_seconds: metadata?.game ? metadata.game.totalDurationSeconds : extractTotalDuration(replay),
 		patchNumber: parseInt(message.buildNumber),
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
 			FormatType: formatType,
 			GameType: gameType,
 			ScenarioID: parseInt(message.scenarioId),
-			BnetRegion: BnetRegion[replay.region?.toString()]?.toString(),
+			BnetRegion: metadata?.meta ? metadata.meta.region : BnetRegion[replay.region?.toString()]?.toString(),
 		},
 		friendly_player: {
-			player_id: replay.mainPlayerId,
+			player_id: metadata?.game.mainPlayerId ?? replay?.mainPlayerId,
 			class: message.playerClass.toUpperCase(),
 			PLAYSTATE: message.result.toUpperCase(),
-			cards: extractPlayedCards(replay, message, replay.mainPlayerId),
+			cards:
+				(metadata
+					? metadata.stats?.playerPlayedCards
+					: extractPlayedCards(replay, message, replay.mainPlayerId)) ?? [],
 			deckstring: message.playerDecklist,
 			rank: playerRank,
 			legendRank: playerLegendRank,
-			going_first: replay.playCoin === 'play',
+			going_first: metadata?.game.playCoin ? metadata?.game.playCoin === 'play' : replay.playCoin === 'play',
 		},
 		opposing_player: {
-			player_id: replay.opponentPlayerId,
+			player_id: metadata?.game.opponentPlayerId ?? replay?.opponentPlayerId,
 			class: message.opponentClass.toUpperCase(),
 			PLAYSTATE: getOpponentPlaystate(message.result),
-			cards: extractPlayedCards(replay, message, replay.opponentPlayerId),
+			cards:
+				(metadata
+					? metadata.stats?.opponentPlayedCards
+					: extractPlayedCards(replay, message, replay.opponentPlayerId)) ?? [],
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
-			going_first: replay.playCoin === 'coin',
+			going_first: metadata?.game ? metadata?.game.playCoin === 'coin' : replay.playCoin === 'coin',
 		},
 	};
+	debug && console.debug('sending to VS', JSON.stringify(vsStats, null, 4));
 	if (vsStats.friendly_player.cards.length === 0) {
 		return;
 	}

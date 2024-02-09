@@ -1,6 +1,8 @@
+/* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { AllCardsService } from '@firestone-hs/reference-data';
+import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import { S3 } from './db/s3';
 import { toD0nkey } from './extractor/d0kney';
 import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
@@ -28,6 +30,11 @@ export class StatsBuilder {
 			d0nkey?: boolean;
 		} = null,
 	): Promise<void> {
+		const start = Date.now();
+		if (message.userId === 'OW_e9585b6b-4468-4455-9768-9fe91b05faed' || message.userName === 'daedin') {
+			console.debug('processing', message.reviewId, message);
+		}
+
 		if (!['ranked'].includes(message.gameMode)) {
 			return;
 		}
@@ -35,24 +42,29 @@ export class StatsBuilder {
 			return;
 		}
 
-		// if (parseInt(message.buildNumber) > 139719) {
-		// 	return;
-		// }
-
-		// const prefs: Preferences = await this.loadPrefs(message.userId);
-		const replayString = await this.loadReplayString(message.replayKey);
-		if (!replayString || replayString.length === 0) {
-			return null;
+		const metadata = await loadMetaDataFile(message.metadataKey);
+		let replay: Replay = null;
+		if (metadata == null) {
+			try {
+				const replayString = await this.loadReplayString(message.replayKey);
+				replay = parseHsReplayString(replayString, allCards);
+			} catch (e) {
+				console.error('Could not parse replay', e.message, message.reviewId);
+				return;
+			}
 		}
-		const replay: Replay = parseHsReplayString(replayString, allCards);
+
 		const targets = [];
 		if (!config || config.vs) {
-			targets.push(toViciousSyndicate(message, replay, replayString));
+			targets.push(toViciousSyndicate(message, metadata, replay));
 		}
 		if (!config || config.d0nkey) {
-			targets.push(toD0nkey(message, replay, replayString));
+			targets.push(toD0nkey(message, metadata, replay));
 		}
 		await Promise.all(targets);
+		if (metadata != null) {
+			console.debug('processed in', Date.now() - start, 'ms', message.reviewId);
+		}
 	}
 
 	private async loadReplayString(replayKey: string): Promise<string> {
@@ -66,3 +78,16 @@ export class StatsBuilder {
 		return data;
 	}
 }
+
+const loadMetaDataFile = async (fileKey: string): Promise<ReplayUploadMetadata | null> => {
+	const replayString = await s3.readZippedContent('com.zerotoheroes.batch', fileKey);
+	let fullMetaData: ReplayUploadMetadata | null = null;
+	if (replayString?.startsWith('{')) {
+		const metadataStr = replayString;
+		if (!!metadataStr?.length) {
+			console.debug('got metadata');
+			fullMetaData = JSON.parse(metadataStr);
+		}
+	}
+	return fullMetaData;
+};

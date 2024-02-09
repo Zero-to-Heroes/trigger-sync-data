@@ -2,6 +2,7 @@
 import { Sns } from '@firestone-hs/aws-lambda-utils';
 import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
+import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import { GetSecretValueRequest } from 'aws-sdk/clients/secretsmanager';
 import axios from 'axios';
 import { SecretInfo, getSecret } from '../db/rds';
@@ -19,7 +20,12 @@ let secret: SecretInfo;
 
 const sns = new Sns();
 
-export const toD0nkey = async (message: ReviewMessage, replay: Replay, replayString: string): Promise<void> => {
+export const toD0nkey = async (
+	message: ReviewMessage,
+	metadata: ReplayUploadMetadata,
+	replay: Replay,
+): Promise<void> => {
+	const debug = message.userName === 'daedin';
 	if (!message.allowGameShare) {
 		return;
 	}
@@ -41,29 +47,34 @@ export const toD0nkey = async (message: ReviewMessage, replay: Replay, replayStr
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 
-	const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
 	let cardsBeforeMulligan: string[] = [];
-	parser.on('cards-in-hand', (event) => {
-		if (cardsBeforeMulligan?.length === 0) {
-			cardsBeforeMulligan = event.cardsInHand;
-		} else {
-			cardsAfterMulligan = event.cardsInHand.map((cardId) => ({
-				cardId: cardId,
-				cardDbfId: allCards.getCard(cardId)?.dbfId,
-				kept: cardsBeforeMulligan.includes(cardId),
-			}));
-		}
-	});
 	let cardsDrawn: any[] = [];
-	parser.on('card-draw', (event) => {
-		// console.debug('card drawn', event.cardId);
-		cardsDrawn = [
-			...cardsDrawn,
-			{ cardId: event.cardId, cardDbfId: allCards.getCard(event.cardId)?.dbfId, turn: event.turn },
-		];
-	});
-	parser.parse();
+	if (metadata) {
+		cardsDrawn = metadata?.stats?.matchAnalysis?.cardsDrawn ?? [];
+		cardsAfterMulligan = metadata?.stats?.matchAnalysis?.cardsAfterMulligan ?? [];
+	} else {
+		const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
+		parser.on('cards-in-hand', (event) => {
+			if (cardsBeforeMulligan?.length === 0) {
+				cardsBeforeMulligan = event.cardsInHand;
+			} else {
+				cardsAfterMulligan = event.cardsInHand.map((cardId) => ({
+					cardId: cardId,
+					cardDbfId: allCards.getCard(cardId)?.dbfId,
+					kept: cardsBeforeMulligan.includes(cardId),
+				}));
+			}
+		});
+		parser.on('card-draw', (event) => {
+			// console.debug('card drawn', event.cardId);
+			cardsDrawn = [
+				...cardsDrawn,
+				{ cardId: event.cardId, cardDbfId: allCards.getCard(event.cardId)?.dbfId, turn: event.turn },
+			];
+		});
+		parser.parse();
+	}
 
 	const stats = {
 		player: {
@@ -72,7 +83,9 @@ export const toD0nkey = async (message: ReviewMessage, replay: Replay, replayStr
 			rank: playerRank,
 			legendRank: playerLegendRank,
 			deckcode: message.playerDecklist,
-			cards: extractPlayedCards(replay, message, replay.mainPlayerId),
+			cards: metadata
+				? metadata.stats?.playerPlayedCards
+				: extractPlayedCards(replay, message, replay.mainPlayerId),
 			cardsInHandAfterMulligan: cardsAfterMulligan,
 			cardsDrawnFromInitialDeck: cardsDrawn,
 		},
@@ -82,16 +95,19 @@ export const toD0nkey = async (message: ReviewMessage, replay: Replay, replayStr
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
 			deckcode: null,
-			cards: extractPlayedCards(replay, message, replay.opponentPlayerId),
+			cards: metadata
+				? metadata.stats?.opponentPlayedCards
+				: extractPlayedCards(replay, message, replay.opponentPlayerId),
 		},
 		game_id: message.reviewId,
 		game_type: gameType,
 		format: formatType,
 		result: message.result.toUpperCase(),
-		region: BnetRegion[replay.region?.toString()]?.toString(),
+		region: metadata?.meta ? metadata.meta.region : BnetRegion[replay.region?.toString()]?.toString(),
 		source: 'firestone',
 		source_version: message.appVersion,
 	};
+	debug && console.debug('sending to d0nkey', JSON.stringify(stats, null, 4));
 	try {
 		secret = secret ?? (await getSecret(secretRequest));
 		// TODO: retrieve the archetype as return of the call
@@ -104,6 +120,7 @@ export const toD0nkey = async (message: ReviewMessage, replay: Replay, replayStr
 		// console.debug('sent request to d0nkey', reply, reply?.status, reply?.statusText, reply?.data);
 		const d0nkeyData: D0nkeyData = reply?.data;
 		if (d0nkeyData?.player_deck?.name?.length > 0) {
+			debug && console.debug('sending to SNS', JSON.stringify(d0nkeyData, null, 4));
 			sns.notify(
 				process.env.ARCHETYPE_ASSIGNED_TOPIC,
 				JSON.stringify({

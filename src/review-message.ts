@@ -17,6 +17,7 @@ export interface ReviewMessage {
 	readonly gameMode: string;
 	readonly creationDate: string;
 	readonly userId: string;
+	readonly userName: string;
 	readonly gameFormat: GameFormatString;
 	readonly opponentCardId: string;
 	readonly playerCardId: string;
@@ -26,6 +27,7 @@ export interface ReviewMessage {
 	readonly scenarioId: string;
 	readonly additionalResult: string;
 	readonly replayKey: string;
+	readonly metadataKey: string;
 	readonly availableTribes: readonly Race[];
 	readonly bgsHasPrizes: boolean;
 	readonly application: string;
