@@ -44,6 +44,7 @@ export class StatsBuilder {
 
 		const metadata = await loadMetaDataFile(message.metadataKey);
 		let replay: Replay = null;
+		// Don't get rid of it, as it's used for reprocessing data
 		if (metadata == null) {
 			try {
 				const replayString = await this.loadReplayString(message.replayKey);
