@@ -6,7 +6,7 @@ import { SecretInfo, getSecret } from './db/rds';
 
 const sns = new Sns();
 
-const startId = 527631235;
+const startId = 529593648;
 const end__Id = 529734273;
 const buildNumber = 195635;
 

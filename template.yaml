@@ -92,7 +92,7 @@ Resources:
             CodeUri: ./dist/process-sync-stats
             Timeout: 60
             MemorySize: 384 
-            ReservedConcurrentExecutions: 10
+            ReservedConcurrentExecutions: 50
             Layers:
                 - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
@@ -141,7 +141,7 @@ Resources:
             Timeout: 10
             CodeUri: ./dist/sync-data-reprocess
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
-            ReservedConcurrentExecutions: 40
+            ReservedConcurrentExecutions: 100
             # Layers:
             #     - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
@@ -150,8 +150,9 @@ Resources:
                 - AmazonSESFullAccess
                 - AmazonSQSFullAccess
                 - AmazonSNSFullAccess
+                - AmazonS3FullAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: sync-data-reprocess
             Events:

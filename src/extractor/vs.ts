@@ -8,7 +8,7 @@ import { extractPlayedCards } from './played-card-extractor';
 
 export const extractViciousSyndicateStats = async (
 	message: ReviewMessage,
-	metadata: ReplayUploadMetadata,
+	metadata: ReplayUploadMetadata, // This is empty when reprocessing
 	replay: Replay,
 ): Promise<void> => {
 	const debug = message.userName === 'daedin';
