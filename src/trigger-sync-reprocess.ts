@@ -6,8 +6,8 @@ import { SecretInfo, getSecret } from './db/rds';
 
 const sns = new Sns();
 
-const startId = 529593648;
-const end__Id = 529734273;
+const startId = 578620919;
+const end__Id = 579589857;
 const buildNumber = 195635;
 
 // This example demonstrates a NodeJS 8.10 async handler[1], however of course you could use
@@ -63,7 +63,6 @@ const performRowsProcessing = async (connection: Connection) => {
 			and playerRank is not null
 			and id >= ${startId}
 			and id < ${end__Id}
-			and buildNumber >= ${buildNumber}
 			order by id asc;
 		`;
 		console.log('running query', queryString);
