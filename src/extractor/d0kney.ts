@@ -1,7 +1,8 @@
+/* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Sns } from '@firestone-hs/aws-lambda-utils';
 import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
-import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
+import { GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import { GetSecretValueRequest } from 'aws-sdk/clients/secretsmanager';
 import axios from 'axios';
@@ -76,6 +77,7 @@ export const toD0nkey = async (
 		parser.parse();
 	}
 
+	const bnetRegion = !!metadata?.meta ? metadata.meta.region : replay.region;
 	const stats = {
 		player: {
 			battleTag: message.playerName,
@@ -103,7 +105,7 @@ export const toD0nkey = async (
 		game_type: gameType,
 		format: formatType,
 		result: message.result.toUpperCase(),
-		region: metadata?.meta ? metadata.meta.region : BnetRegion[replay.region?.toString()]?.toString(),
+		region: bnetRegion,
 		source: 'firestone',
 		source_version: message.appVersion,
 	};

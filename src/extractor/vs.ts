@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
@@ -17,6 +18,12 @@ export const extractViciousSyndicateStats = async (
 	}
 
 	if (message.gameMode !== 'ranked') {
+		return;
+	}
+
+	// Not syncing CN games for now to reduce costs
+	const bnetRegion = !!metadata?.meta ? metadata.meta.region : replay.region;
+	if (!bnetRegion || bnetRegion === BnetRegion.REGION_CN) {
 		return;
 	}
 
@@ -42,7 +49,7 @@ export const extractViciousSyndicateStats = async (
 			FormatType: formatType,
 			GameType: gameType,
 			ScenarioID: parseInt(message.scenarioId),
-			BnetRegion: metadata?.meta ? metadata.meta.region : BnetRegion[replay.region?.toString()]?.toString(),
+			BnetRegion: bnetRegion,
 		},
 		friendly_player: {
 			player_id: metadata?.game.mainPlayerId ?? replay?.mainPlayerId,
