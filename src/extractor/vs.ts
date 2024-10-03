@@ -1,6 +1,6 @@
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { extractTotalDuration, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import { extractTotalDuration, extractTotalTurns, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import axios from 'axios';
@@ -43,6 +43,7 @@ export const extractViciousSyndicateStats = async (
 		game_id: message.reviewId,
 		timestamp: Date.now(),
 		game_duration_in_seconds: metadata?.game ? metadata.game.totalDurationSeconds : extractTotalDuration(replay),
+		game_duration_in_turns: metadata?.game ? metadata.game.totalDurationTurns : extractTotalTurns(replay),
 		patchNumber: parseInt(message.buildNumber),
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
