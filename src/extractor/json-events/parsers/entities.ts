@@ -63,9 +63,9 @@ const parser = (structure: ParsingStructure) => {
 					element.find(`.Tag[@tag='${GameTag.TRANSFORMED_FROM_CARD}']`)?.get('value') || '0',
 				),
 			};
-			if (element.get('id') == '17') {
-				console.debug('show entity', element);
-			}
+			// if (element.get('id') == '17') {
+			// 	console.debug('show entity', element);
+			// }
 		}
 		if (structure.entities[element.get('entity')]) {
 			if (parseInt(element.get('tag')) === GameTag.CONTROLLER) {
@@ -166,17 +166,17 @@ const hasCleave = (cardId: string): boolean => {
 	return (
 		[
 			CardIds.CaveHydra_BG_LOOT_078,
-			CardIds.CaveHydraBattlegrounds,
+			CardIds.CaveHydra_TB_BaconUps_151,
 			CardIds.FoeReaper4000_BG_GVG_113,
-			CardIds.FoeReaper4000Battlegrounds,
+			CardIds.FoeReaper4000_TB_BaconUps_153,
 		].indexOf(cardId as CardIds) !== -1
 	);
 };
 
 const hasWindfury = (cardId: string): boolean => {
-	return !hasMegaWindfury(cardId) && [CardIds.ZappSlywick].indexOf(cardId as CardIds) !== -1;
+	return !hasMegaWindfury(cardId) && [CardIds.ZappSlywick_BGS_022].indexOf(cardId as CardIds) !== -1;
 };
 
 const hasMegaWindfury = (cardId: string): boolean => {
-	return [CardIds.ZappSlywick, CardIds.ZappSlywickBattlegrounds].indexOf(cardId as CardIds) !== -1;
+	return [CardIds.ZappSlywick_BGS_022, CardIds.ZappSlywick_TB_BaconUps_091].indexOf(cardId as CardIds) !== -1;
 };

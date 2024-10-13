@@ -1,8 +1,10 @@
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
+import { getConnection } from '@firestone-hs/aws-lambda-utils';
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { AllCardsService } from '@firestone-hs/reference-data';
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
+import { assignArchetype } from './archetype/archetype-message-handler';
 import { S3 } from './db/s3';
 import { toD0nkey } from './extractor/d0kney';
 import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
@@ -20,7 +22,15 @@ export class StatsBuilder {
 		} = null,
 	): Promise<void> {
 		await allCards.initializeCardsDb();
-		await Promise.all(messages.map((msg) => this.buildStat(msg, config)));
+		const archetypes = await Promise.all(messages.map((msg) => this.buildStat(msg, config)));
+
+		const mysql = await getConnection();
+		for (const archetype of archetypes ?? []) {
+			if (!!archetype?.archetype?.length) {
+				await assignArchetype(mysql, archetype.archetype, archetype.metadata, archetype.message);
+			}
+		}
+		await mysql.end();
 	}
 
 	private async buildStat(
@@ -29,17 +39,21 @@ export class StatsBuilder {
 			vs?: boolean;
 			d0nkey?: boolean;
 		} = null,
-	): Promise<void> {
+	): Promise<{
+		metadata: ReplayUploadMetadata;
+		message: ReviewMessage;
+		archetype: string;
+	} | null> {
 		const start = Date.now();
-		if (message.userId === 'OW_e9585b6b-4468-4455-9768-9fe91b05faed' || message.userName === 'daedin') {
-			console.debug('processing', message.reviewId, message);
-		}
+		// if (message.userId === 'OW_e9585b6b-4468-4455-9768-9fe91b05faed' || message.userName === 'daedin') {
+		// 	console.debug('processing', message.reviewId, message);
+		// }
 
 		if (!['ranked'].includes(message.gameMode)) {
-			return;
+			return null;
 		}
 		if (!message.allowGameShare) {
-			return;
+			return null;
 		}
 
 		const metadata = await loadMetaDataFile(message.metadataKey);
@@ -51,21 +65,26 @@ export class StatsBuilder {
 				replay = parseHsReplayString(replayString, allCards);
 			} catch (e) {
 				console.error('Could not parse replay', e.message, message.reviewId);
-				return;
+				return null;
 			}
 		}
 
-		const targets = [];
+		const targets: Promise<string>[] = [];
 		if (!config || config.vs) {
 			targets.push(toViciousSyndicate(message, metadata, replay));
 		}
 		if (!config || config.d0nkey) {
 			targets.push(toD0nkey(message, metadata, replay));
 		}
-		await Promise.all(targets);
-		if (metadata != null) {
-			console.debug('processed in', Date.now() - start, 'ms', message.reviewId);
-		}
+		const archetypes = await Promise.all(targets);
+		// if (metadata != null) {
+		// 	console.debug('processed in', Date.now() - start, 'ms', message.reviewId);
+		// }
+		return {
+			metadata: metadata,
+			message: message,
+			archetype: archetypes.filter((a) => !!a?.length)[0],
+		};
 	}
 
 	private async loadReplayString(replayKey: string): Promise<string> {
@@ -86,7 +105,7 @@ const loadMetaDataFile = async (fileKey: string): Promise<ReplayUploadMetadata |
 	if (replayString?.startsWith('{')) {
 		const metadataStr = replayString;
 		if (!!metadataStr?.length) {
-			console.debug('got metadata');
+			// console.debug('got metadata');
 			fullMetaData = JSON.parse(metadataStr);
 		}
 	}

@@ -10,6 +10,7 @@ Globals:
             Variables:
                 ARCHETYPE_ASSIGNED_TOPIC: !Ref ArchetypeAssignedSnsTopic
                 REVIEW_REPUBLISHED_TOPIC: !Ref ReviewRepublishedSnsTopic
+                ARCHETYPE_ASSIGNED_QUEUE: arn:aws:sqs:us-west-2:478062583808:assign-archetype-queue
 
 Resources:
     ArchetypeAssignedSnsTopic:
@@ -94,9 +95,9 @@ Resources:
             Handler: process-sync-stats.default
             Runtime: nodejs18.x
             CodeUri: ./dist/process-sync-stats
-            Timeout: 60
-            MemorySize: 384 
-            ReservedConcurrentExecutions: 50
+            Timeout: 120
+            MemorySize: 500 
+            ReservedConcurrentExecutions: 10
             Layers:
                 - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
@@ -107,7 +108,7 @@ Resources:
                 - AmazonSNSFullAccess
                 - AmazonS3FullAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: process-sync-stats
             Events:
@@ -115,7 +116,8 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !GetAtt SyncStatsStatsQueue.Arn
-                        BatchSize: 1
+                        BatchSize: 100
+                        MaximumBatchingWindowInSeconds: 10
     TriggerReprocessStatsFunction:
         Type: AWS::Serverless::Function
         Properties:

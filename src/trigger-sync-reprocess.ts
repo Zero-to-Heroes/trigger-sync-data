@@ -65,7 +65,6 @@ const performRowsProcessing = async (connection: Connection) => {
 			and id < ${end__Id}
 			order by id asc;
 		`;
-		console.log('running query', queryString);
 		const query = connection.query(queryString);
 
 		let rowsToProcess = [];

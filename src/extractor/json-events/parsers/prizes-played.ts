@@ -15,12 +15,12 @@ const handlePrizes = (
 	structure: ParsingStructure,
 	emitter: (eventName: EventName, event: any) => void,
 ) => {
-	return element => {
+	return (element) => {
 		if (element.tag === 'ChosenEntities') {
 			const chosenEntity = structure.entities[element.find(`Choice`)?.get('entity')];
 			if (chosenEntity.cardType === CardType.SPELL) {
 				const creator = structure.entities['' + chosenEntity.creatorEntityId];
-				if (creator?.cardId === CardIds.Baconshop8playerenchantEnchantmentBattlegrounds) {
+				if (creator?.cardId === CardIds.Baconshop8playerenchantEnchantment) {
 					emitter('bgsPrizePicked', {
 						cardId: chosenEntity.cardId,
 						time: toTimestamp(element.get('ts')),

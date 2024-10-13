@@ -11,7 +11,7 @@ export const extractViciousSyndicateStats = async (
 	message: ReviewMessage,
 	metadata: ReplayUploadMetadata, // This is empty when reprocessing
 	replay: Replay,
-): Promise<void> => {
+): Promise<string> => {
 	const debug = message.userName === 'daedin';
 	if (!message.allowGameShare) {
 		return;
@@ -78,7 +78,7 @@ export const extractViciousSyndicateStats = async (
 			going_first: metadata?.game ? metadata?.game.playCoin === 'coin' : replay.playCoin === 'coin',
 		},
 	};
-	debug && console.debug('sending to VS', JSON.stringify(vsStats, null, 4));
+	// debug && console.debug('sending to VS', JSON.stringify(vsStats, null, 4));
 	if (vsStats.friendly_player.cards.length === 0) {
 		return;
 	}

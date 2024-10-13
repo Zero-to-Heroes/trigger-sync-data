@@ -6,12 +6,13 @@ import { StatsBuilder } from './stats-builder';
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event): Promise<any> => {
 	const messages: readonly ReviewMessage[] = (event.Records as any[])
-		.map(event => JSON.parse(event.body))
+		.map((event) => JSON.parse(event.body))
 		.reduce((a, b) => a.concat(b), [])
-		.filter(event => event)
-		.map(event => event.Message)
-		.filter(msg => msg)
-		.map(msg => JSON.parse(msg));
+		.filter((event) => event)
+		.map((event) => event.Message)
+		.filter((msg) => msg)
+		.map((msg) => JSON.parse(msg));
+	// console.debug('processing', messages.length, 'messages');
 	await new StatsBuilder().buildStats(messages);
 	return { statusCode: 200, body: null };
 };

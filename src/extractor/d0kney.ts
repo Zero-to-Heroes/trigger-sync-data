@@ -1,6 +1,6 @@
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Sns } from '@firestone-hs/aws-lambda-utils';
+import { Sns, Sqs } from '@firestone-hs/aws-lambda-utils';
 import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { GameFormat, GameFormatString, GameType } from '@firestone-hs/reference-data';
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
@@ -20,12 +20,13 @@ const secretRequest: GetSecretValueRequest = {
 let secret: SecretInfo;
 
 const sns = new Sns();
+const sqs = new Sqs();
 
 export const toD0nkey = async (
 	message: ReviewMessage,
 	metadata: ReplayUploadMetadata,
 	replay: Replay,
-): Promise<void> => {
+): Promise<string> => {
 	const debug = message.userName === 'daedin';
 	if (!message.allowGameShare) {
 		return;
@@ -109,7 +110,7 @@ export const toD0nkey = async (
 		source: 'firestone',
 		source_version: message.appVersion,
 	};
-	debug && console.debug('sending to d0nkey', JSON.stringify(stats, null, 4));
+	// debug && console.debug('sending to d0nkey', JSON.stringify(stats, null, 4));
 	try {
 		secret = secret ?? (await getSecret(secretRequest));
 		// TODO: retrieve the archetype as return of the call
@@ -121,15 +122,28 @@ export const toD0nkey = async (
 		});
 		// console.debug('sent request to d0nkey', reply, reply?.status, reply?.statusText, reply?.data);
 		const d0nkeyData: D0nkeyData = reply?.data;
-		if (d0nkeyData?.player_deck?.name?.length > 0) {
-			debug && console.debug('sending to SNS', JSON.stringify(d0nkeyData, null, 4));
-			sns.notify(
-				process.env.ARCHETYPE_ASSIGNED_TOPIC,
-				JSON.stringify({
-					...message,
-					archetype: d0nkeyData?.player_deck?.name,
-				}),
-			);
+		if (
+			d0nkeyData?.player_deck?.name?.length > 0 &&
+			!!message.playerRank?.length &&
+			!!message.playerDecklist?.length &&
+			!!message.replayKey?.length
+		) {
+			return d0nkeyData?.player_deck?.name;
+			// debug && console.debug('sending to SNS', JSON.stringify(d0nkeyData, null, 4));
+			// sqs.sendMessageToQueue(
+			// 	{
+			// 		...message,
+			// 		archetype: d0nkeyData?.player_deck?.name,
+			// 	},
+			// 	process.env.ARCHETYPE_ASSIGNED_QUEUE,
+			// );
+			// sns.notify(
+			// 	process.env.ARCHETYPE_ASSIGNED_TOPIC,
+			// 	JSON.stringify({
+			// 		...message,
+			// 		archetype: d0nkeyData?.player_deck?.name,
+			// 	}),
+			// );
 		}
 	} catch (e) {
 		console.error('Could not send request to d0nkey', stats, e);
