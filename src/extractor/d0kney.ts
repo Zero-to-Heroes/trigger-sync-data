@@ -146,7 +146,7 @@ export const toD0nkey = async (
 			// );
 		}
 	} catch (e) {
-		console.error('Could not send request to d0nkey', stats, e);
+		console.error('Could not send request to d0nkey', stats, e.config);
 	}
 };
 
