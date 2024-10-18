@@ -1,6 +1,6 @@
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { getConnection } from '@firestone-hs/aws-lambda-utils';
+import { getConnectionProxy } from '@firestone-hs/aws-lambda-utils';
 import { parseHsReplayString, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { AllCardsService } from '@firestone-hs/reference-data';
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
@@ -24,7 +24,7 @@ export class StatsBuilder {
 		await allCards.initializeCardsDb();
 		const archetypes = await Promise.all(messages.map((msg) => this.buildStat(msg, config)));
 
-		const mysql = await getConnection();
+		const mysql = await getConnectionProxy();
 		for (const archetype of archetypes ?? []) {
 			if (!!archetype?.archetype?.length) {
 				await assignArchetype(mysql, archetype.archetype, archetype.metadata, archetype.message);
