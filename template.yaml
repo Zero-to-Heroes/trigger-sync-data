@@ -97,7 +97,7 @@ Resources:
             CodeUri: ./dist/process-sync-stats
             Timeout: 120
             MemorySize: 500 
-            ReservedConcurrentExecutions: 10
+            ReservedConcurrentExecutions: 7
             VpcConfig:
                 SecurityGroupIds:
                     - sg-eccd2691
