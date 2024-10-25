@@ -33,7 +33,7 @@ export const toD0nkey = async (
 	}
 
 	const gameType = getGameType(message.gameMode);
-	if (![GameType.GT_RANKED.toString()].includes(gameType)) {
+	if (![GameType.GT_RANKED.toString(), GameType.GT_TAVERNBRAWL].includes(gameType)) {
 		return;
 	}
 
@@ -50,11 +50,12 @@ export const toD0nkey = async (
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
-	let cardsBeforeMulligan: string[] = [];
+	let cardsBeforeMulligan: readonly string[] = [];
 	let cardsDrawn: any[] = [];
 	if (metadata) {
 		cardsDrawn = metadata?.stats?.matchAnalysis?.cardsDrawn ?? [];
 		cardsAfterMulligan = metadata?.stats?.matchAnalysis?.cardsAfterMulligan ?? [];
+		cardsBeforeMulligan = metadata?.stats?.matchAnalysis?.cardsBeforeMulligan ?? [];
 	} else {
 		const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
 		parser.on('cards-in-hand', (event) => {
@@ -90,7 +91,9 @@ export const toD0nkey = async (
 				? metadata.stats?.playerPlayedCards
 				: extractPlayedCards(replay, message, replay.mainPlayerId),
 			cardsInHandAfterMulligan: cardsAfterMulligan,
+			cardsBeforeMulligan: cardsBeforeMulligan,
 			cardsDrawnFromInitialDeck: cardsDrawn,
+			hasCoin: metadata?.game?.playCoin === 'coin' ? true : metadata?.game?.playCoin === 'play' ? false : null,
 		},
 		opposing_player: {
 			battleTag: message.opponentName,
@@ -109,6 +112,8 @@ export const toD0nkey = async (
 		region: bnetRegion,
 		source: 'firestone',
 		source_version: message.appVersion,
+		duration_seconds: metadata?.game?.totalDurationSeconds,
+		duration_turns: metadata?.game?.totalDurationTurns,
 	};
 	// debug && console.debug('sending to d0nkey', JSON.stringify(stats, null, 4));
 	try {
