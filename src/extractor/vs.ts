@@ -5,7 +5,7 @@ import { BnetRegion, GameFormat, GameFormatString, GameType } from '@firestone-h
 import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import axios from 'axios';
 import { ReviewMessage } from '../review-message';
-import { extractPlayedCards } from './played-card-extractor';
+import { extractPlayedCards, extractPlayedCardsByTurn } from './played-card-extractor';
 
 export const extractViciousSyndicateStats = async (
 	message: ReviewMessage,
@@ -23,7 +23,7 @@ export const extractViciousSyndicateStats = async (
 
 	// Not syncing CN games for now to reduce costs
 	const bnetRegion = !!metadata?.meta ? metadata.meta.region : replay.region;
-	if (!bnetRegion || bnetRegion === BnetRegion.REGION_CN) {
+	if (!bnetRegion) {
 		return;
 	}
 
@@ -38,6 +38,10 @@ export const extractViciousSyndicateStats = async (
 	}
 
 	const [playerRank, playerLegendRank] = convertLeagueToRank(message.playerRank);
+	if (bnetRegion === BnetRegion.REGION_CN && (playerRank !== 51 || playerLegendRank > 10000)) {
+		return;
+	}
+
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
 	const vsStats = {
 		game_id: message.reviewId,
@@ -60,6 +64,10 @@ export const extractViciousSyndicateStats = async (
 				(metadata
 					? metadata.stats?.playerPlayedCards
 					: extractPlayedCards(replay, message, replay.mainPlayerId)) ?? [],
+			cardsByTurn:
+				(metadata
+					? metadata?.stats?.playerPlayedCardsByTurn
+					: extractPlayedCardsByTurn(replay, replay.mainPlayerId)) ?? [],
 			deckstring: message.playerDecklist,
 			rank: playerRank,
 			legendRank: playerLegendRank,
@@ -73,6 +81,10 @@ export const extractViciousSyndicateStats = async (
 				(metadata
 					? metadata.stats?.opponentPlayedCards
 					: extractPlayedCards(replay, message, replay.opponentPlayerId)) ?? [],
+			cardsByTurn:
+				(metadata
+					? metadata?.stats?.opponentPlayedCardsByTurn
+					: extractPlayedCardsByTurn(replay, replay.opponentPlayerId)) ?? [],
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
 			going_first: metadata?.game ? metadata?.game.playCoin === 'coin' : replay.playCoin === 'coin',

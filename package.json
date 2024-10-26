@@ -15,7 +15,7 @@
 	"private": true,
 	"dependencies": {
 		"@firestone-hs/aws-lambda-utils": "^1.0.7",
-		"@firestone-hs/hs-replay-xml-parser": "0.0.105",
+		"@firestone-hs/hs-replay-xml-parser": "^0.0.145",
 		"@firestone-hs/reference-data": "^2.0.84",
 		"@firestone-hs/replay-metadata": "^0.0.73",
 		"aws-sdk": "^2.1040.0",

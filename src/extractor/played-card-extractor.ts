@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
+import { CardsPlayedByTurnParser, parseGame, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { GameTag, getBaseCardId, Zone } from '@firestone-hs/reference-data';
 import { Element } from 'elementtree';
 import { ReviewMessage } from '../review-message';
 
 const validZones = [Zone.PLAY, Zone.GRAVEYARD, Zone.REMOVEDFROMGAME, Zone.SETASIDE];
 
-// export const extractHandAfterMulligan = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
-
-// }
+export const extractPlayedCardsByTurn = (replay: Replay, playerId: number) => {
+	const parser = new CardsPlayedByTurnParser();
+	parseGame(replay, [parser]);
+	console.debug('cards played by turn', parser.cardsPlayedByTurn);
+	const playerPlayedCardsByTurn = parser.cardsPlayedByTurn[playerId];
+	return playerPlayedCardsByTurn;
+};
 
 export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
 	const idControllerMapping = buildIdToControllerMapping(replay);
