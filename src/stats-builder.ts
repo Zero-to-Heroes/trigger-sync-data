@@ -49,9 +49,9 @@ export class StatsBuilder {
 		// 	console.debug('processing', message.reviewId, message);
 		// }
 
-		if (!['ranked'].includes(message.gameMode)) {
-			return null;
-		}
+		// if (!['ranked'].includes(message.gameMode)) {
+		// 	return null;
+		// }
 		if (!message.allowGameShare) {
 			return null;
 		}
