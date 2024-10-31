@@ -33,7 +33,7 @@ export const toD0nkey = async (
 	}
 
 	const gameType = getGameType(message.gameMode);
-	if (![GameType.GT_RANKED.toString(), GameType.GT_TAVERNBRAWL].includes(gameType)) {
+	if (![GameType.GT_RANKED.toString(), GameType.GT_TAVERNBRAWL.toString()].includes(gameType)) {
 		return;
 	}
 
