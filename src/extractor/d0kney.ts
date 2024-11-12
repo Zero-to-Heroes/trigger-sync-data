@@ -88,8 +88,9 @@ export const toD0nkey = async (
 			legendRank: playerLegendRank,
 			deckcode: message.playerDecklist,
 			cards: metadata
-				? metadata.stats?.playerPlayedCards
+				? metadata?.stats?.playerPlayedCardsByTurn?.filter((c) => !c.createdBy)?.map((c) => c.cardId)
 				: extractPlayedCards(replay, message, replay.mainPlayerId),
+			cardsWithCreatedBy: metadata?.stats?.playerPlayedCardsByTurn,
 			cardsInHandAfterMulligan: cardsAfterMulligan,
 			cardsBeforeMulligan: cardsBeforeMulligan,
 			cardsDrawnFromInitialDeck: cardsDrawn,
@@ -102,8 +103,9 @@ export const toD0nkey = async (
 			legendRank: opponentLegendRank,
 			deckcode: null,
 			cards: metadata
-				? metadata.stats?.opponentPlayedCards
+				? metadata?.stats?.opponentPlayedCardsByTurn?.filter((c) => !c.createdBy)?.map((c) => c.cardId)
 				: extractPlayedCards(replay, message, replay.opponentPlayerId),
+			cardsWithCreatedBy: metadata?.stats?.opponentPlayedCardsByTurn,
 		},
 		game_id: message.reviewId,
 		game_type: gameType,

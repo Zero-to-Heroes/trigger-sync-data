@@ -43,6 +43,8 @@ export const extractViciousSyndicateStats = async (
 	}
 
 	const [opponentRank, opponentLegendRank] = convertLeagueToRank(message.opponentRank);
+	const playerCards = metadata?.stats?.playerPlayedCardsByTurn?.filter((c) => !c.createdBy);
+	const opponentCards = metadata?.stats?.opponentPlayedCardsByTurn?.filter((c) => !c.createdBy);
 	const vsStats = {
 		game_id: message.reviewId,
 		timestamp: Date.now(),
@@ -62,12 +64,10 @@ export const extractViciousSyndicateStats = async (
 			PLAYSTATE: message.result.toUpperCase(),
 			cards:
 				(metadata
-					? metadata.stats?.playerPlayedCards
+					? playerCards?.map((c) => c.cardId)
 					: extractPlayedCards(replay, message, replay.mainPlayerId)) ?? [],
-			cardsByTurn:
-				(metadata
-					? metadata?.stats?.playerPlayedCardsByTurn
-					: extractPlayedCardsByTurn(replay, replay.mainPlayerId)) ?? [],
+			cardsByTurn: (metadata ? playerCards : extractPlayedCardsByTurn(replay, replay.mainPlayerId)) ?? [],
+			cardsWithCreatedBy: metadata?.stats?.playerPlayedCardsByTurn,
 			deckstring: message.playerDecklist,
 			rank: playerRank,
 			legendRank: playerLegendRank,
@@ -79,12 +79,10 @@ export const extractViciousSyndicateStats = async (
 			PLAYSTATE: getOpponentPlaystate(message.result),
 			cards:
 				(metadata
-					? metadata.stats?.opponentPlayedCards
+					? opponentCards?.map((c) => c.cardId)
 					: extractPlayedCards(replay, message, replay.opponentPlayerId)) ?? [],
-			cardsByTurn:
-				(metadata
-					? metadata?.stats?.opponentPlayedCardsByTurn
-					: extractPlayedCardsByTurn(replay, replay.opponentPlayerId)) ?? [],
+			cardsByTurn: (metadata ? opponentCards : extractPlayedCardsByTurn(replay, replay.opponentPlayerId)) ?? [],
+			cardsWithCreatedBy: metadata?.stats?.opponentPlayedCardsByTurn,
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
 			going_first: metadata?.game ? metadata?.game.playCoin === 'coin' : replay.playCoin === 'coin',
