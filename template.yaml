@@ -143,7 +143,7 @@ Resources:
                 - SecretsManagerReadWrite
                 - AmazonSNSReadOnlyAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: trigger-sync-reprocess
     ReprocessStatsFunction:
@@ -151,7 +151,7 @@ Resources:
         Properties:
             Handler: sync-data-reprocess.default
             Runtime: nodejs18.x
-            Timeout: 10
+            Timeout: 60
             CodeUri: ./dist/sync-data-reprocess
             MemorySize: 384 # Increase memory to be able to handle big games like BGS
             ReservedConcurrentExecutions: 100

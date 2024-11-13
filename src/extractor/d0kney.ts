@@ -12,7 +12,7 @@ import { allCards } from '../stats-builder';
 import { cardDrawn } from './json-events/parsers/cards-draw-parser';
 import { cardsInHand } from './json-events/parsers/cards-in-hand-parser';
 import { ReplayParser } from './json-events/replay-parser';
-import { extractPlayedCards } from './played-card-extractor';
+import { extractPlayedCardsByTurn } from './played-card-extractor';
 
 const secretRequest: GetSecretValueRequest = {
 	SecretId: 'd0nkey',
@@ -80,6 +80,12 @@ export const toD0nkey = async (
 	}
 
 	const bnetRegion = !!metadata?.meta ? metadata.meta.region : replay.region;
+	const playerCardsFromMetadata = metadata?.stats?.playerPlayedCardsByTurn?.filter((c) => !c.createdBy);
+	const playerCards =
+		(metadata ? playerCardsFromMetadata : extractPlayedCardsByTurn(replay, replay.mainPlayerId)) ?? [];
+	const opponentCardsFromMetadata = metadata?.stats?.opponentPlayedCardsByTurn?.filter((c) => !c.createdBy);
+	const opponentCards =
+		(metadata ? opponentCardsFromMetadata : extractPlayedCardsByTurn(replay, replay.opponentPlayerId)) ?? [];
 	const stats = {
 		player: {
 			battleTag: message.playerName,
@@ -87,9 +93,7 @@ export const toD0nkey = async (
 			rank: playerRank,
 			legendRank: playerLegendRank,
 			deckcode: message.playerDecklist,
-			cards: metadata
-				? metadata?.stats?.playerPlayedCardsByTurn?.filter((c) => !c.createdBy)?.map((c) => c.cardId)
-				: extractPlayedCards(replay, message, replay.mainPlayerId),
+			cards: playerCards.map((c) => c.cardId),
 			cardsWithCreatedBy: metadata?.stats?.playerPlayedCardsByTurn,
 			cardsInHandAfterMulligan: cardsAfterMulligan,
 			cardsBeforeMulligan: cardsBeforeMulligan,
@@ -102,9 +106,7 @@ export const toD0nkey = async (
 			rank: opponentRank,
 			legendRank: opponentLegendRank,
 			deckcode: null,
-			cards: metadata
-				? metadata?.stats?.opponentPlayedCardsByTurn?.filter((c) => !c.createdBy)?.map((c) => c.cardId)
-				: extractPlayedCards(replay, message, replay.opponentPlayerId),
+			cards: opponentCards.map((c) => c.cardId),
 			cardsWithCreatedBy: metadata?.stats?.opponentPlayedCardsByTurn,
 		},
 		game_id: message.reviewId,

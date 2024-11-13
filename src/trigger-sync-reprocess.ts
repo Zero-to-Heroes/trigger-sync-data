@@ -57,13 +57,17 @@ const performRowProcessIngPool = async (pool: any) => {
 
 const performRowsProcessing = async (connection: Connection) => {
 	return new Promise<void>((resolve) => {
+		// const queryString = `
+		// 	SELECT * FROM replay_summary
+		// 	where gameMode = 'ranked'
+		// 	and playerRank is not null
+		// 	and id >= ${startId}
+		// 	and id < ${end__Id}
+		// 	order by id asc;
+		// `;
 		const queryString = `
 			SELECT * FROM replay_summary
-			where gameMode = 'ranked'
-			and playerRank is not null
-			and id >= ${startId}
-			and id < ${end__Id}
-			order by id asc;
+			where reviewId = '7ba7fe5f-eddf-4b9b-9827-1f99a099278e';
 		`;
 		const query = connection.query(queryString);
 
@@ -74,7 +78,7 @@ const performRowsProcessing = async (connection: Connection) => {
 				console.error('error while fetching rows', err);
 			})
 			.on('fields', (fields) => {
-				console.log('fields', fields);
+				// console.log('fields', fields);
 			})
 			.on('result', async (row) => {
 				// console.log('row', row.reviewId);
@@ -100,6 +104,21 @@ const performRowsProcessing = async (connection: Connection) => {
 				}
 			})
 			.on('end', async () => {
+				const toUpload = rowsToProcess;
+				rowsToProcess = [];
+				await Promise.all(
+					toUpload.map((reviewToNotify) =>
+						sns.notify(process.env.REVIEW_REPUBLISHED_TOPIC, JSON.stringify(reviewToNotify)),
+					),
+				);
+				rowCount += toUpload.length;
+				console.log(
+					'processed rows',
+					process.env.REVIEW_REPUBLISHED_TOPIC,
+					toUpload.length,
+					rowCount,
+					toUpload[toUpload.length - 1].id,
+				);
 				console.log('end');
 				resolve();
 			});

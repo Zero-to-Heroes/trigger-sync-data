@@ -2,53 +2,52 @@
 import { CardsPlayedByTurnParser, parseGame, Replay } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
 import { GameTag, getBaseCardId, Zone } from '@firestone-hs/reference-data';
 import { Element } from 'elementtree';
-import { ReviewMessage } from '../review-message';
 
 const validZones = [Zone.PLAY, Zone.GRAVEYARD, Zone.REMOVEDFROMGAME, Zone.SETASIDE];
 
-export const extractPlayedCardsByTurn = (replay: Replay, playerId: number) => {
+export const extractPlayedCardsByTurn = (replay: Replay, playerId: number, reviewId?: string) => {
 	const parser = new CardsPlayedByTurnParser();
 	parseGame(replay, [parser]);
-	console.debug('cards played by turn', parser.cardsPlayedByTurn);
+	// console.debug('cards played by turn', reviewId, parser.cardsPlayedByTurn);
 	const playerPlayedCardsByTurn = parser.cardsPlayedByTurn[playerId];
 	return playerPlayedCardsByTurn;
 };
 
-export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
-	const idControllerMapping = buildIdToControllerMapping(replay);
-	const entitiesWithCards = replay.replay
-		.findall(`.//*[@cardID]`)
-		.filter((element) => element.tag !== 'ChangeEntity')
-		.filter((entity) => isEntityValid(entity));
+// export const extractPlayedCards = (replay: Replay, message: ReviewMessage, playerId: number): string[] => {
+// 	const idControllerMapping = buildIdToControllerMapping(replay);
+// 	const entitiesWithCards = replay.replay
+// 		.findall(`.//*[@cardID]`)
+// 		.filter((element) => element.tag !== 'ChangeEntity')
+// 		.filter((entity) => isEntityValid(entity));
 
-	// Because cards can change controllers during the game, we need to only consider the
-	// first time we see them
-	const uniqueEntities = [];
-	for (const entity of entitiesWithCards) {
-		// Don't add duplicate entities
-		if (uniqueEntities.map((entity) => getId(entity)).indexOf(getId(entity)) !== -1) {
-			continue;
-		}
-		// Only add cards
-		uniqueEntities.push(entity);
-	}
+// 	// Because cards can change controllers during the game, we need to only consider the
+// 	// first time we see them
+// 	const uniqueEntities = [];
+// 	for (const entity of entitiesWithCards) {
+// 		// Don't add duplicate entities
+// 		if (uniqueEntities.map((entity) => getId(entity)).indexOf(getId(entity)) !== -1) {
+// 			continue;
+// 		}
+// 		// Only add cards
+// 		uniqueEntities.push(entity);
+// 	}
 
-	const validZoneChangeTags = replay.replay
-		.findall(`.//TagChange[@tag='${GameTag.ZONE}']`)
-		.filter((tag) => validZones.indexOf(parseInt(tag.get('value'))) !== -1);
-	const entityIdsWithValidZoneChanges = validZoneChangeTags.map((tagChange) => parseInt(tagChange.get('entity')));
+// 	const validZoneChangeTags = replay.replay
+// 		.findall(`.//TagChange[@tag='${GameTag.ZONE}']`)
+// 		.filter((tag) => validZones.indexOf(parseInt(tag.get('value'))) !== -1);
+// 	const entityIdsWithValidZoneChanges = validZoneChangeTags.map((tagChange) => parseInt(tagChange.get('entity')));
 
-	const validEntities = uniqueEntities.filter(
-		(entity) =>
-			validZones.indexOf(getId(entity)) !== -1 || entityIdsWithValidZoneChanges.indexOf(getId(entity)) !== -1,
-	);
+// 	const validEntities = uniqueEntities.filter(
+// 		(entity) =>
+// 			validZones.indexOf(getId(entity)) !== -1 || entityIdsWithValidZoneChanges.indexOf(getId(entity)) !== -1,
+// 	);
 
-	const playerEntities: Element[] = validEntities.filter(
-		(entity) => idControllerMapping[getId(entity)] && idControllerMapping[getId(entity)] === playerId,
-	);
-	const playedCards = playerEntities.map((entity) => getCardId(entity));
-	return playedCards;
-};
+// 	const playerEntities: Element[] = validEntities.filter(
+// 		(entity) => idControllerMapping[getId(entity)] && idControllerMapping[getId(entity)] === playerId,
+// 	);
+// 	const playedCards = playerEntities.map((entity) => getCardId(entity));
+// 	return playedCards;
+// };
 
 const getCardId = (entity: Element): string => {
 	return getBaseCardId(entity.get('cardID'));
