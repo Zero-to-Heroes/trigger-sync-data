@@ -29,7 +29,7 @@ export const extractViciousSyndicateStats = async (
 
 	const formatType = getFormatType(message.gameFormat);
 	const gameType = getGameType(message.gameMode);
-	if (formatType === GameFormat.FT_UNKNOWN.toString() || gameType === GameType.GT_UNKNOWN.toString()) {
+	if (formatType === GameFormat[GameFormat.FT_UNKNOWN] || gameType === GameType[GameType.GT_UNKNOWN]) {
 		return;
 	}
 
@@ -58,8 +58,8 @@ export const extractViciousSyndicateStats = async (
 		firestoneVersion: message.appVersion,
 		game_meta: {
 			BuildNumber: parseInt(message.buildNumber),
-			FormatType: formatType,
-			GameType: gameType,
+			FormatType: GameFormat[formatType],
+			GameType: GameType[gameType],
 			ScenarioID: parseInt(message.scenarioId),
 			BnetRegion: bnetRegion,
 		},
@@ -127,37 +127,37 @@ const getOpponentPlaystate = (playerPlayState: 'lost' | 'won' | 'tied'): string 
 const getGameType = (gameMode: string): string => {
 	switch (gameMode) {
 		case 'arena':
-			return GameType.GT_ARENA.toString();
+			return GameType[GameType.GT_ARENA];
 		case 'battlegrounds':
-			return GameType.GT_BATTLEGROUNDS.toString();
+			return GameType[GameType.GT_BATTLEGROUNDS];
 		case 'casual':
-			return GameType.GT_CASUAL.toString();
+			return GameType[GameType.GT_CASUAL];
 		case 'friendly':
-			return GameType.GT_VS_FRIEND.toString();
+			return GameType[GameType.GT_VS_FRIEND];
 		case 'practice':
-			return GameType.GT_VS_AI.toString();
+			return GameType[GameType.GT_VS_AI];
 		case 'ranked':
-			return GameType.GT_RANKED.toString();
+			return GameType[GameType.GT_RANKED];
 		case 'tavern-brawl':
 		case 'tavernbrawl':
-			return GameType.GT_TAVERNBRAWL.toString();
+			return GameType[GameType.GT_TAVERNBRAWL];
 		default:
-			return GameType.GT_UNKNOWN.toString();
+			return GameType[GameType.GT_UNKNOWN];
 	}
 };
 
 const getFormatType = (gameFormat: GameFormatString): string => {
 	switch (gameFormat) {
 		case 'standard':
-			return GameFormat.FT_STANDARD.toString();
+			return GameFormat[GameFormat.FT_STANDARD];
 		case 'wild':
-			return GameFormat.FT_WILD.toString();
+			return GameFormat[GameFormat.FT_WILD];
 		case 'classic':
-			return GameFormat.FT_CLASSIC.toString();
+			return GameFormat[GameFormat.FT_CLASSIC];
 		case 'twist':
-			return GameFormat.FT_TWIST.toString();
+			return GameFormat[GameFormat.FT_TWIST];
 		default:
-			return GameFormat.FT_UNKNOWN.toString();
+			return GameFormat[GameFormat.FT_UNKNOWN];
 	}
 };
 

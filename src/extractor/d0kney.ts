@@ -33,12 +33,12 @@ export const toD0nkey = async (
 	}
 
 	const gameType = getGameType(message.gameMode);
-	if (![GameType.GT_RANKED.toString(), GameType.GT_TAVERNBRAWL.toString()].includes(gameType)) {
+	if (![GameType.GT_RANKED, GameType.GT_TAVERNBRAWL].includes(GameType[gameType])) {
 		return;
 	}
 
 	const formatType = getFormatType(message.gameFormat);
-	if (formatType === GameFormat.FT_UNKNOWN.toString() || gameType === GameType.GT_UNKNOWN.toString()) {
+	if (GameFormat[formatType] === GameFormat.FT_UNKNOWN || GameType[gameType] === GameType.GT_UNKNOWN) {
 		return;
 	}
 
@@ -110,8 +110,8 @@ export const toD0nkey = async (
 			cardsWithCreatedBy: metadata?.stats?.opponentPlayedCardsByTurn,
 		},
 		game_id: message.reviewId,
-		game_type: gameType,
-		format: formatType,
+		game_type: GameType[gameType],
+		format: GameFormat[formatType],
 		result: message.result.toUpperCase(),
 		region: bnetRegion,
 		source: 'firestone',
@@ -177,37 +177,37 @@ const convertLeagueToRank = (playerRank: string): [number, number] => {
 const getGameType = (gameMode: string): string => {
 	switch (gameMode) {
 		case 'arena':
-			return GameType.GT_ARENA.toString();
+			return GameType[GameType.GT_ARENA];
 		case 'battlegrounds':
-			return GameType.GT_BATTLEGROUNDS.toString();
+			return GameType[GameType.GT_BATTLEGROUNDS];
 		case 'casual':
-			return GameType.GT_CASUAL.toString();
+			return GameType[GameType.GT_CASUAL];
 		case 'friendly':
-			return GameType.GT_VS_FRIEND.toString();
+			return GameType[GameType.GT_VS_FRIEND];
 		case 'practice':
-			return GameType.GT_VS_AI.toString();
+			return GameType[GameType.GT_VS_AI];
 		case 'ranked':
-			return GameType.GT_RANKED.toString();
+			return GameType[GameType.GT_RANKED];
 		case 'tavern-brawl':
 		case 'tavernbrawl':
-			return GameType.GT_TAVERNBRAWL.toString();
+			return GameType[GameType.GT_TAVERNBRAWL];
 		default:
-			return GameType.GT_UNKNOWN.toString();
+			return GameType[GameType.GT_UNKNOWN];
 	}
 };
 
 const getFormatType = (gameFormat: GameFormatString): string => {
 	switch (gameFormat) {
 		case 'standard':
-			return GameFormat.FT_STANDARD.toString();
+			return GameFormat[GameFormat.FT_STANDARD];
 		case 'wild':
-			return GameFormat.FT_WILD.toString();
+			return GameFormat[GameFormat.FT_WILD];
 		case 'classic':
-			return GameFormat.FT_CLASSIC.toString();
+			return GameFormat[GameFormat.FT_CLASSIC];
 		case 'twist':
-			return GameFormat.FT_TWIST.toString();
+			return GameFormat[GameFormat.FT_TWIST];
 		default:
-			return GameFormat.FT_UNKNOWN.toString();
+			return GameFormat[GameFormat.FT_UNKNOWN];
 	}
 };
 

@@ -7,6 +7,7 @@ import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import { assignArchetype } from './archetype/archetype-message-handler';
 import { S3 } from './db/s3';
 import { toD0nkey } from './extractor/d0kney';
+import { toHilo } from './extractor/hilo';
 import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
 import { ReviewMessage } from './review-message';
 
@@ -19,6 +20,7 @@ export class StatsBuilder {
 		config: {
 			vs?: boolean;
 			d0nkey?: boolean;
+			hilo?: boolean;
 		} = null,
 	): Promise<void> {
 		await allCards.initializeCardsDb();
@@ -38,6 +40,7 @@ export class StatsBuilder {
 		config: {
 			vs?: boolean;
 			d0nkey?: boolean;
+			hilo?: boolean;
 		} = null,
 	): Promise<{
 		metadata: ReplayUploadMetadata;
@@ -75,6 +78,9 @@ export class StatsBuilder {
 		}
 		if (!config || config.d0nkey) {
 			targets.push(toD0nkey(message, metadata, replay));
+		}
+		if (!config || config.hilo) {
+			targets.push(toHilo(message, metadata, replay, allCards));
 		}
 		const archetypes = await Promise.all(targets);
 		// if (metadata != null) {
