@@ -110,7 +110,7 @@ export const toHilo = async (
 		});
 		console.debug('sent request to hilo', reply, reply?.status, reply?.statusText, reply?.data);
 	} catch (e) {
-		console.error('Could not send request to hilo', data, e.config);
+		console.error('Could not send request to hilo', e.message, e);
 	}
 };
 
