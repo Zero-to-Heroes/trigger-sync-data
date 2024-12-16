@@ -3,7 +3,7 @@ import serverlessMysql from 'serverless-mysql';
 import { ReviewMessage } from '../review-message';
 import { allCards } from '../stats-builder';
 
-const deckstringArchetypeCache: { [deckstring: string]: number } = {};
+const deckstringArchetypeCache: { [deckstring: string]: { id: number; lastUpdate: Date } } = {};
 
 export const addConstructedMatchStat = async (
 	mysql: serverlessMysql.ServerlessMysql,
@@ -47,6 +47,9 @@ export const addConstructedMatchStat = async (
 	const playerRank = isLegend
 		? parseInt(message.playerRank.split('legend-')[1])
 		: buildNumericalRankValue(message.playerRank);
+	const debug =
+		message.playerDecklist ===
+		'AAECAaoIBo31BcekBtTABvzABrrOBqXTBgzl5AX26AWQgwazjQbDjwaopwbrqQbWwAb2wAatxQbR0Abk6gYAAQPzswbHpAb2swbHpAbo3gbHpAYAAA==';
 	// console.debug('trying to insert rank', playerRank, message.playerRank, message);
 	const result = await mysql.query(insertQuery, [
 		message.creationDate,
@@ -70,19 +73,23 @@ export const addConstructedMatchStat = async (
 	]);
 
 	const decklistForArchetypes = normalizedDecklist.replaceAll('/', '-');
-	if (archetypeId > 0 && !deckstringArchetypeCache[decklistForArchetypes]) {
+	const cachedInfo = deckstringArchetypeCache[decklistForArchetypes];
+	if (
+		archetypeId > 0 &&
+		(!cachedInfo || cachedInfo.lastUpdate.getTime() < new Date().getTime() - 10 * 60 * 60 * 1000)
+	) {
 		// Also add a decklist/archetype mapping
 		const deckArchetypeQuery = `
-			INSERT IGNORE INTO constructed_deck_archetype
+			INSERT INTO constructed_deck_archetype
 			(
 				deckstring,
 				archetypeId
 			)
-			VALUES
-			(?, ?)
+			VALUES (?, ?)
+			ON DUPLICATE KEY UPDATE archetypeId = VALUES(archetypeId)    
 		`;
 		await mysql.query(deckArchetypeQuery, [decklistForArchetypes, archetypeId]);
-		deckstringArchetypeCache[decklistForArchetypes] = archetypeId;
+		deckstringArchetypeCache[decklistForArchetypes] = { id: archetypeId, lastUpdate: new Date() };
 	}
 
 	return metadata;

@@ -137,6 +137,12 @@ export const toD0nkey = async (
 			!!message.playerDecklist?.length &&
 			!!message.replayKey?.length
 		) {
+			// if (
+			// 	message.playerDecklist ===
+			// 	'AAECAaoIBo31BcekBtTABvzABrrOBqXTBgzl5AX26AWQgwazjQbDjwaopwbrqQbWwAb2wAatxQbR0Abk6gYAAQPzswbHpAb2swbHpAbo3gbHpAYAAA=='
+			// ) {
+			// 	console.debug('swarm archetype 2', d0nkeyData);
+			// }
 			return d0nkeyData?.player_deck?.name;
 			// debug && console.debug('sending to SNS', JSON.stringify(d0nkeyData, null, 4));
 			// sqs.sendMessageToQueue(
