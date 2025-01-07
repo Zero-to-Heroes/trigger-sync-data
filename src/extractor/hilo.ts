@@ -102,12 +102,16 @@ export const toHilo = async (
 	try {
 		// secret = secret ?? (await getSecret(secretRequest));
 		// TODO: retrieve the archetype as return of the call
-		const reply = await axios.put('https://hilo-backend.azurewebsites.net/api/hearthstone/firestone', data, {
-			// auth: {
-			// 	username: secret.username,
-			// 	password: secret.password,
-			// },
-		});
+		const reply = await axios.put(
+			'https://hilo-backend.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
+			data,
+			{
+				// auth: {
+				// 	username: secret.username,
+				// 	password: secret.password,
+				// },
+			},
+		);
 		console.debug('sent request to hilo', reply, reply?.status, reply?.statusText, reply?.data);
 	} catch (e) {
 		console.error('Could not send request to hilo', e.message, e);
