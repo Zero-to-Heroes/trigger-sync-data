@@ -102,7 +102,7 @@ export const toHilo = async (
 	try {
 		// secret = secret ?? (await getSecret(secretRequest));
 		// TODO: retrieve the archetype as return of the call
-		const reply = await axios.put(
+		const reply = await axios.post(
 			'https://hilo-backend.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
 			data,
 			{
