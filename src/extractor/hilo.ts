@@ -60,6 +60,8 @@ export const toHilo = async (
 	// Find last turn
 	const lastTurn =
 		metadata.bgs.postMatchStats?.boardHistory[metadata.bgs.postMatchStats.boardHistory.length - 1]?.turn ?? 0;
+	const finalBoard =
+		metadata.bgs.postMatchStats?.boardHistory[metadata.bgs.postMatchStats.boardHistory.length - 1]?.board ?? [];
 	const turnInfos = [];
 	for (let i = 1; i <= lastTurn; i++) {
 		const faceOff = metadata.bgs.postMatchStats.faceOffs.find((f) => f.turn === i);
@@ -96,6 +98,10 @@ export const toHilo = async (
 		battleLuck: battleLuck,
 		server: server,
 		turns: turnInfos,
+		finalComp: {
+			board: finalBoard,
+			turn: lastTurn,
+		},
 	};
 	console.debug('sending to hilo', JSON.stringify(data, null, 4));
 
