@@ -40,7 +40,16 @@ export const toHilo = async (
 		return;
 	}
 
-	if (message.playerName !== 'Lii#11987' && message.playerName !== 'Daedin#2991') {
+	const battleTags = [
+		'Lii#11987',
+		'Daedin#2991',
+		'HurryMyCurry#1399',
+		'HapaBear#1923',
+		'funkyluan#1276',
+		'HapaIsTilted#1545',
+		'Bartellini#2728',
+	];
+	if (!battleTags.includes(message.playerName)) {
 		debug && console.debug('not correct user', message.playerName);
 		return;
 	}
