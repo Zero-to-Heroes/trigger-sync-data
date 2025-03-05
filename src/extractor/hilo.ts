@@ -48,6 +48,8 @@ export const toHilo = async (
 		'funkyluan#1276',
 		'HapaIsTilted#1545',
 		'Bartellini#2728',
+		'Shy#22111',
+		'Physikbar#2228',
 	];
 	if (!battleTags.includes(message.playerName)) {
 		debug && console.debug('not correct user', message.playerName);
