@@ -129,7 +129,18 @@ export const toHilo = async (
 				// },
 			},
 		);
-		console.debug('sent request to hilo', reply, reply?.status, reply?.statusText, reply?.data);
+		console.debug('sent request to hilo dev', reply?.status, reply?.statusText, reply?.data);
+		const replyProd = await axios.post(
+			'https://hilo-production.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
+			data,
+			{
+				// auth: {
+				// 	username: secret.username,
+				// 	password: secret.password,
+				// },
+			},
+		);
+		console.debug('sent request to hilo prod', replyProd?.status, replyProd?.statusText, replyProd?.data);
 	} catch (e) {
 		console.error('Could not send request to hilo', e.message, e);
 	}
