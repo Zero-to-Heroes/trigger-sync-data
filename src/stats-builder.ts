@@ -7,7 +7,7 @@ import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import { assignArchetype } from './archetype/archetype-message-handler';
 import { S3 } from './db/s3';
 import { toD0nkey } from './extractor/d0kney';
-import { toHilo } from './extractor/hilo';
+import { refresHiloBattleTags, toHilo } from './extractor/hilo';
 import { extractViciousSyndicateStats as toViciousSyndicate } from './extractor/vs';
 import { ReviewMessage } from './review-message';
 
@@ -25,6 +25,8 @@ export class StatsBuilder {
 	): Promise<void> {
 		await allCards.initializeCardsDb();
 		const archetypes = await Promise.all(messages.map((msg) => this.buildStat(msg, config)));
+
+		await refresHiloBattleTags();
 
 		const mysql = await getConnectionProxy();
 		for (const archetype of archetypes ?? []) {

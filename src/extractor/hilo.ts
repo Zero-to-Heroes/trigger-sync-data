@@ -13,10 +13,24 @@ import { ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import axios from 'axios';
 import { ReviewMessage } from '../review-message';
 
-// const secretRequest: GetSecretValueRequest = {
-// 	SecretId: 'hilo',
-// };
-// let secret: SecretInfo;
+const environments = [
+	{
+		name: 'dev',
+		battleTagsUrl: 'https://hilo-backend.azurewebsites.net/api/hearthstone-battlegrounds/firestone-battletags/',
+		postUrl: 'https://hilo-backend.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
+		battleTags: [],
+		lastRefresh: null,
+	},
+	{
+		name: 'prod',
+		battleTagsUrl: 'https://hilo-production.azurewebsites.net/api/hearthstone-battlegrounds/firestone-battletags/',
+		postUrl: 'https://hilo-production.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
+		battleTags: [],
+		lastRefresh: null,
+	},
+];
+
+const BATTLE_TAG_REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
 
 export const toHilo = async (
 	message: ReviewMessage,
@@ -40,19 +54,8 @@ export const toHilo = async (
 		return;
 	}
 
-	const battleTags = [
-		'Lii#11987',
-		'Daedin#2991',
-		'HurryMyCurry#1399',
-		'HapaBear#1923',
-		'funkyluan#1276',
-		'HapaIsTilted#1545',
-		'Bartellini#2728',
-		'Shy#22111',
-		'Physikbar#2228',
-	];
-	if (!battleTags.includes(message.playerName)) {
-		debug && console.debug('not correct user', message.playerName);
+	const allBattleTags = environments.flatMap((env) => env.battleTags);
+	if (!allBattleTags.includes(message.playerName)) {
 		return;
 	}
 
@@ -116,33 +119,17 @@ export const toHilo = async (
 	};
 	console.debug('sending to hilo', JSON.stringify(data, null, 4));
 
-	try {
-		// secret = secret ?? (await getSecret(secretRequest));
-		// TODO: retrieve the archetype as return of the call
-		const reply = await axios.post(
-			'https://hilo-backend.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
-			data,
-			{
-				// auth: {
-				// 	username: secret.username,
-				// 	password: secret.password,
-				// },
-			},
-		);
-		console.debug('sent request to hilo dev', reply?.status, reply?.statusText, reply?.data);
-		const replyProd = await axios.post(
-			'https://hilo-production.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/',
-			data,
-			{
-				// auth: {
-				// 	username: secret.username,
-				// 	password: secret.password,
-				// },
-			},
-		);
-		console.debug('sent request to hilo prod', replyProd?.status, replyProd?.statusText, replyProd?.data);
-	} catch (e) {
-		console.error('Could not send request to hilo', e.message, e);
+	for (const env of environments) {
+		if (!env.battleTags.includes(message.playerName)) {
+			continue;
+		}
+
+		try {
+			const reply = await axios.post(env.postUrl, data);
+			console.debug('sent request to hilo', env.name, reply?.status, reply?.statusText, reply?.data);
+		} catch (e) {
+			console.error('Could not send request to hilo', e.message, e);
+		}
 	}
 };
 
@@ -165,5 +152,22 @@ const getGameType = (gameMode: string): GameType => {
 			return GameType.GT_TAVERNBRAWL;
 		default:
 			return GameType.GT_UNKNOWN;
+	}
+};
+
+export const refresHiloBattleTags = async () => {
+	const now = Date.now();
+	for (const env of environments) {
+		if (env.lastRefresh && now - env.lastRefresh < BATTLE_TAG_REFRESH_INTERVAL) {
+			continue;
+		}
+		try {
+			env.lastRefresh = now;
+			const reply = await axios.get(env.battleTagsUrl);
+			env.battleTags = reply.data?.battletags ?? [];
+			console.debug('refreshed battle tags', env.name, env.battleTags.length);
+		} catch (e) {
+			console.error('Could not refresh battle tags', e.message, e);
+		}
 	}
 };
