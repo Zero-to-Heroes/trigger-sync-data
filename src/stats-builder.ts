@@ -30,7 +30,7 @@ export class StatsBuilder {
 
 		const mysql = await getConnectionProxy();
 		for (const archetype of archetypes ?? []) {
-			if (!!archetype?.archetype?.length) {
+			if (!!archetype?.archetype?.length && archetype.metadata.game.gameMode === 'ranked') {
 				await assignArchetype(mysql, archetype.archetype, archetype.metadata, archetype.message);
 			}
 		}
