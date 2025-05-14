@@ -38,10 +38,11 @@ export const addConstructedMatchStat = async (
 			durationSeconds,
             matchAnalysis,
 			playerHeroCardId,
-			opponentHeroCardId
+			opponentHeroCardId,
+			coinPlay
 		)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`;
 	const isLegend = message.playerRank?.includes('legend');
 	const playerRank = isLegend
@@ -70,6 +71,7 @@ export const addConstructedMatchStat = async (
 		JSON.stringify(matchAnalysis),
 		message.playerCardId,
 		message.opponentCardId,
+		message.coinPlay,
 	]);
 
 	const decklistForArchetypes = normalizedDecklist.replaceAll('/', '-');
